@@ -1,30 +1,30 @@
 # 阶段 03 — Normalize 规范化
 
 ## 目标
-修复被语法性错误切断的句子(相邻条合并),得到结构干净、语义完整的源字幕。
+修复被语法性错误切断的句子(相邻条合并),得到结构干净、语义完整的源字幕。**产物全部在 VIDDIR 内**。
 
 ## 前置
-- 02 通过;`subtitle.srt` 与 `raw_subtitle.txt` 存在。
+- 02 通过;`VIDDIR/subtitle.srt` 与 `VIDDIR/raw_subtitle.txt` 存在。
 
 ## 步骤
 
 1. 复制为规范化版本(保留原件):
    ```bash
-   cp <workspace>/subtitle.srt <workspace>/subtitle.normalized.srt
+   cp VIDDIR/subtitle.srt VIDDIR/subtitle.normalized.srt
    ```
-2. 按 prompts/normalize.md 逐对扫描 `raw_subtitle.txt`,得出合并建议表。
-3. 编辑 `subtitle.normalized.srt` 实施合并(取前条 start、后条 end,文本拼接为一句,序号重排)。
+2. 按 prompts/normalize.md 逐对扫描 `VIDDIR/raw_subtitle.txt`,得出合并建议表。
+3. 编辑 `VIDDIR/subtitle.normalized.srt` 实施合并(取前条 start、后条 end,文本拼接为一句,序号重排)。
 4. 校验:
    ```bash
-   tools/srt_tool.py validate <workspace>/subtitle.normalized.srt
+   tools/srt_tool.py validate VIDDIR/subtitle.normalized.srt
    ```
 5. 重导出纯文本供翻译阶段使用:
    ```bash
-   tools/srt_tool.py to-txt <workspace>/subtitle.normalized.srt <workspace>/raw_subtitle.normalized.txt
+   tools/srt_tool.py to-txt VIDDIR/subtitle.normalized.srt VIDDIR/raw_subtitle.normalized.txt
    ```
 6. 更新 `session_state.json` + `run.log`。
 
-## 产物
+## 产物(VIDDIR 内)
 - `subtitle.normalized.srt`、`raw_subtitle.normalized.txt`
 
 ## 质量门槛

@@ -1,31 +1,31 @@
 # 阶段 04 — Translate 翻译(核心)
 
 ## 目标
-把规范化源字幕逐句翻译为中文,并维护四个记忆文件,产出 `translated_subtitle.srt`。
+把规范化源字幕逐句翻译为中文,并维护四个记忆文件,产出 `translated_subtitle.srt`。**全部产物与记忆文件在 VIDDIR 内**。
 
 ## 前置
-- 03 通过;`subtitle.normalized.srt` 存在。
+- 03 通过;`VIDDIR/subtitle.normalized.srt` 存在。
 - 已与用户确认 `domain_hint`(可为空)。
 
 ## 步骤
 
-1. **翻译标题**:按 prompts/title.md 翻译,写入 `translated_title.txt`(已存在则跳过)。
-2. **读记忆**:读四个记忆文件(不存在视为"尚无")。
+1. **翻译标题**:按 prompts/title.md 翻译,写入 `VIDDIR/translated_title.txt`(已存在则跳过)。
+2. **读记忆**:读 VIDDIR 内四个记忆文件(不存在视为"尚无")。
 3. **分块翻译**:按 prompts/translate-module.md 逐块执行:
    - 块大小自定:短视频一次全量,长视频 20~40 句/块;上一块译完、记忆更新后再译下一块。
    - 每块:注入记忆文件与上文译文 → 请求模型输出 JSON → 校验行数 → 提取译文 → 按 memory.md 更新记忆文件。
-   - 译文逐行写入 `translated_lines.txt`(整文件重写,行号与源字幕一一对应)。
+   - 译文逐行写入 `VIDDIR/translated_lines.txt`(整文件重写,行号与源字幕一一对应)。
 4. **生成字幕**(行数不匹配会失败,失败即本块翻译不守恒,回改):
    ```bash
-   tools/srt_tool.py from-txt --source <workspace>/subtitle.normalized.srt \
-     --text <workspace>/translated_lines.txt --output <workspace>/translated_subtitle.srt
+   tools/srt_tool.py from-txt --source VIDDIR/subtitle.normalized.srt \
+     --text VIDDIR/translated_lines.txt --output VIDDIR/translated_subtitle.srt
    ```
-5. **校验**:`tools/srt_tool.py validate translated_subtitle.srt`。
+5. **校验**:`tools/srt_tool.py validate VIDDIR/translated_subtitle.srt`。
 6. **自检**:执行 quality.md「翻译自检清单」全部 5 项(逐块复查、术语一致性、广告检查、行数守恒、全文终检)。
-7. 导出交付文本:`tools/srt_tool.py to-txt translated_subtitle.srt raw_translated_subtitle.txt`。
+7. 导出交付文本:`tools/srt_tool.py to-txt VIDDIR/translated_subtitle.srt VIDDIR/raw_translated_subtitle.txt`。
 8. 更新 `session_state.json` + `run.log`。
 
-## 产物
+## 产物(全部在 VIDDIR 内)
 - `translated_title.txt`、`translated_lines.txt`、`translated_subtitle.srt`、`raw_translated_subtitle.txt`
 - 四个记忆文件(如内容有更新)
 
@@ -44,5 +44,5 @@
 | 上下文过长/模型能力不足导致质量下降 | 缩小块大小;必要时向用户建议更长上下文的模型(需用户同意更换) |
 
 ## 续跑注意
-- 工作区即状态:记忆文件 + `translated_lines.txt` + session_state.json 可随时恢复。
+- 工作区即状态:记忆文件 + `translated_lines.txt` + session_state.json 可随时恢复(均在 VIDDIR 内)。
 - 中断后重开:校验已完成的块(记忆文件与译文块数是否自洽),从第一个未完成块继续。

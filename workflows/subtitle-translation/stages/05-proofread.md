@@ -1,28 +1,28 @@
 # 阶段 05 — Proofread 校对
 
 ## 目标
-最小修补:去重复读、清空空文本条目。产出最终字幕。
+最小修补:去重复读、清空空文本条目。产出最终字幕。**产物全部在 VIDDIR 内**。
 
 ## 前置
-- 04 通过;`translated_subtitle.srt` 存在。
+- 04 通过;`VIDDIR/translated_subtitle.srt` 存在。
 
 ## 步骤
 
 1. 复制为校对版本:
    ```bash
-   cp <workspace>/translated_subtitle.srt <workspace>/translated_subtitle.proofread.srt
+   cp VIDDIR/translated_subtitle.srt VIDDIR/translated_subtitle.proofread.srt
    ```
 2. 按 prompts/proofread.md 以窗口逐对扫描全部条目:
    - 语义重复 → 合并去重(前 start、后 end,取前条文本)。
    - 空文本条目 → 并入相邻条目或删除。
 3. 校验(必须无警告,空文本清零):
    ```bash
-   tools/srt_tool.py validate <workspace>/translated_subtitle.proofread.srt
+   tools/srt_tool.py validate VIDDIR/translated_subtitle.proofread.srt
    ```
-4. 导出最终纯文本:`tools/srt_tool.py to-txt translated_subtitle.proofread.srt raw_translated_subtitle.txt`(覆盖 04 版本)。
+4. 导出最终纯文本:`tools/srt_tool.py to-txt VIDDIR/translated_subtitle.proofread.srt VIDDIR/raw_translated_subtitle.txt`(覆盖 04 版本)。
 5. 更新 `session_state.json` + `run.log`。
 
-## 产物
+## 产物(VIDDIR 内)
 - `translated_subtitle.proofread.srt`(最终交付字幕)
 - `raw_translated_subtitle.txt`(最终纯文本)
 

@@ -2,12 +2,23 @@
 
 把在线视频(默认为英文)转成中文翻译字幕。流程由文档定义、脚手架工具执行确定性步骤、agent 完成语义性步骤。
 
+## 三个目录概念(必须先分清)
+
+| 名称 | 是什么 | 位置示例 | 可写内容 |
+|------|--------|----------|----------|
+| **项目文件夹** | 本 kits 仓库(TranslationKits):AGENTS.md、workflows/、tools/ | `/home/cc/Documents/code/TranslationKits` | **禁止写入任何产物**。agent 只读文档与工具 |
+| **工作区根** | 用户指定的目录,可容纳多个视频 | `/home/cc/Videos/Translates` | 只允许直接子目录 = 各视频目录(见下) |
+| **视频目录(VIDDIR)** | 每个视频的全部产物所在,名称 = 视频标题安全名 | `<workspace>/<视频名称>/` | 该视频全部中间产物、状态、日志、记忆、交付物 |
+
+- **VIDDIR 记号**:本文档及 stages/ 中所有 `VIDDIR` 指 `<workspace>/<视频名称>/`。视频名称由 fetch 阶段从元数据标题生成(安全化规则:空白 → `_`,去掉 `"` `'` `,`),并记录在 `VIDDIR/info.txt` 的「视频目录」行。
+- **铁律:所有中间产物、状态文件、日志、记忆文件、交付物一律写入 VIDDIR;项目文件夹与工作区根(除视频目录本身)均不得落盘。**
+
 ## 阶段总览
 
-| # | 阶段 | 负责人 | 工具 | 核心产物 | 进入下一阶段条件 |
+| # | 阶段 | 负责人 | 工具 | 核心产物(均在 VIDDIR 下) | 进入下一阶段条件 |
 |---|------|--------|------|----------|------------------|
-| 00 | Preflight 预检 | agent | `tools/check_env.sh` | `session_state.json` | 环境检查通过(exit 0 或 2 且无 FAIL) |
-| 01 | Fetch 抓取 | 工具 | `tools/fetch.sh` | `info.txt` `video.*` `thumbnail.png` | 文件存在且 info.txt 完整 |
+| 00 | Preflight 预检 | agent | `tools/check_env.sh` | 续跑时检查 VIDDIR 内 `session_state.json` | 环境检查通过(exit 0 或 2 且无 FAIL) |
+| 01 | Fetch 抓取 | 工具 | `tools/fetch.sh` | `info.txt` `video.*` `thumbnail.png` + 创建 VIDDIR | 文件存在且 info.txt 完整 |
 | 02 | Transcribe 转写 | 工具 | `ffmpeg` + `tools/transcribe.py` + `tools/srt_tool.py` | `audio.wav` `subtitle.srt` `raw_subtitle.txt` | `srt_tool.py validate` 无错误 |
 | 03 | Normalize 规范化 | agent | `tools/srt_tool.py` | `subtitle.normalized.srt` | validate 无错误 |
 | 04 | Translate 翻译 | agent | `tools/srt_tool.py` | `translated_subtitle.srt` 及记忆文件 | from-txt 行数匹配 + validate 无错误 + 自检通过 |
@@ -21,7 +32,7 @@
 | 参数 | 必需 | 默认值 | 说明 |
 |------|------|--------|------|
 | `url` | ✅ | — | 源视频 URL |
-| `workspace` | ✅ | — | 工作区目录(每视频一个独立目录,须可写、路径不含空格/特殊字符) |
+| `workspace` | ✅ | — | **工作区根目录**(可容纳多个视频;本视频产物在 `<workspace>/<视频名称>/`;须可写、路径不含空格/特殊字符) |
 | `language` | 否 | `en` | 源语言代码(whisper 参数) |
 | `whisper_model` | 否 | `turbo` | 转写模型:tiny/base/small/medium/large/large-v3/turbo |
 | `proxy` | 否 | 无 | HTTP 代理地址(如 `http://127.0.0.1:7890`);环境不通时向用户索取 |
@@ -30,31 +41,32 @@
 
 **确认方式**:会话开始时把表格念给用户核对,缺省值直接采用并在对话中说明。URL 与工作区缺一不可,缺失必须向用户询问,不得编造。
 
-## 工作区布局(状态即文件)
+## 视频目录布局(状态即文件)
 
 ```
-<workspace>/
-├── session_state.json          # 阶段状态与参数(续跑依据,每次阶段完成必须更新)
-├── issues.log                  # 问题记录(问题协议专用)
-├── run.log                     # 阶段执行流水(时间/阶段/结果)
-├── info.txt                    # 视频元信息(fetch 产物)
-├── video.<ext>                 # 原视频
-├── thumbnail.png               # 封面
-├── audio.wav                   # 音频(ffmpeg 抽取)
-├── subtitle.srt                # whisper 原始字幕
-├── raw_subtitle.txt            # 原始逐句文本(to-txt 产物)
-├── subtitle.normalized.srt     # 规范化字幕(agent 编辑产物)
-├── raw_subtitle.normalized.txt # 规范化逐句文本(翻译输入)
-├── translated_title.txt        # 标题译文
-├── translated_lines.txt        # 中文译文逐行(agent 写的核心产物,from-txt 输入)
-├── translated_subtitle.srt     # 中文字幕(from-txt 生成)
-├── translated_subtitle.proofread.srt  # 校对后字幕
-├── raw_translated_subtitle.txt # 中文逐句文本(交付用)
-├── term_consistency_table.txt  # 术语一致性表(记忆)
-├── meta_translation_rules.txt  # 元翻译规则(记忆)
-├── synopsis_memory.txt         # 前情提要(记忆)
-├── ad_memory.txt               # 广告概括(记忆)
-└── translation_report.md       # 交付报告
+<workspace>/                          ← 工作区根(只含视频目录)
+└── <视频名称>/                        ← VIDDIR(fetch 阶段创建)
+    ├── session_state.json            # 阶段状态与参数(续跑依据,每次阶段完成必须更新)
+    ├── issues.log                    # 问题记录(问题协议专用)
+    ├── run.log                       # 阶段执行流水(时间/阶段/结果)
+    ├── info.txt                      # 视频元信息(fetch 产物,含「视频目录」行)
+    ├── video.<ext>                   # 原视频
+    ├── thumbnail.png                 # 封面
+    ├── audio.wav                     # 音频(ffmpeg 抽取)
+    ├── subtitle.srt                  # whisper 原始字幕
+    ├── raw_subtitle.txt              # 原始逐句文本(to-txt 产物)
+    ├── subtitle.normalized.srt       # 规范化字幕(agent 编辑产物)
+    ├── raw_subtitle.normalized.txt   # 规范化逐句文本(翻译输入)
+    ├── translated_title.txt          # 标题译文
+    ├── translated_lines.txt          # 中文译文逐行(agent 写的核心产物,from-txt 输入)
+    ├── translated_subtitle.srt       # 中文字幕(from-txt 生成)
+    ├── translated_subtitle.proofread.srt  # 校对后字幕
+    ├── raw_translated_subtitle.txt   # 中文逐句文本(交付用)
+    ├── term_consistency_table.txt    # 术语一致性表(记忆)
+    ├── meta_translation_rules.txt    # 元翻译规则(记忆)
+    ├── synopsis_memory.txt           # 前情提要(记忆)
+    ├── ad_memory.txt                 # 广告概括(记忆)
+    └── translation_report.md         # 交付报告
 ```
 
 ## session_state.json 约定
@@ -63,18 +75,21 @@
 {
   "url": "https://...",
   "workspace": "/abs/path",
+  "vid_dir": "/abs/path/<视频名称>",
   "params": { "language": "en", "whisper_model": "turbo", "proxy": null, "domain_hint": "" },
   "stages_completed": ["preflight", "fetch", "transcribe", "normalize", "translate", "proofread"]
 }
 ```
 
+- 文件位于 **VIDDIR 内**(fetch 阶段创建 VIDDIR 后初始化)。
 - 每完成一个阶段,追加该阶段名到 `stages_completed` 并更新 `run.log`(写入一行 `[UTC时间] stage=<名> status=ok`)。
-- **续跑规则**:开工时先读此文件。已有 `stages_completed` 的阶段:检查对应产物文件存在且通过 quality.md 门槛(只需 validate/存在性检查,不必重做),通过即跳过;产物缺失或校验失败则**重做该阶段**,并在 issues.log 记录一条。
+- **续跑规则**:开工时先确认 VIDDIR——列出工作区根的直接子目录,含 `session_state.json` 者即本视频目录;有多个则向用户确认。已有 `stages_completed` 的阶段:检查对应产物文件存在且通过 quality.md 门槛(只需 validate/存在性检查,不必重做),通过即跳过;产物缺失或校验失败则**重做该阶段**,并在 issues.log 记录一条。
 - 阶段执行失败时状态不写完成,`run.log` 写 `status=fail`。
 
 ## 问题协议(摘要,全文在 AGENTS.md)
 
-- 任何阻碍:记录 `issues.log` → 对话中 3 行内告知用户 → 等待指示 → 指出 kits 文档/工具缺陷并建议修复。
+- 任何阻碍:记录 `VIDDIR/issues.log` → 对话中 3 行内告知用户 → 等待指示 → 指出 kits 文档/工具缺陷并建议修复。
+- **唯一例外**:VIDDIR 尚未创建(fetch 元数据阶段之前)时,记录到工作区根 `issues.log`,视频目录创建后不再迁移。
 - **禁止**:自行改工具脚本、自行装依赖、自行换参数做实验、默默跳过阶段。
 - 允许的变通仅限各 stage 文档「失败处置表」所列。
 

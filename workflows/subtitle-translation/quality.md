@@ -1,6 +1,7 @@
 # 质量门槛 — 每阶段验收标准
 
 > 铁律:产物未过本文件门槛,不得进入下一阶段。校验失败 → 回退修正或走问题协议,不得带着缺陷继续。
+> 产物位置:所有中间产物与交付物均在 **VIDDIR**(`<workspace>/<视频名称>/`,见 workflow.md「三个目录概念」)内;任何产物不得出现在项目文件夹或工作区根(视频目录以外)。
 
 ## 工具校验(每次 SRT 生成/修改后必须执行)
 
@@ -17,7 +18,7 @@ tools/srt_tool.py validate <file.srt>
 | 阶段 | 门槛(全部满足才算通过) |
 |------|--------------------------|
 | 00 Preflight | check_env.sh exit 0 或 2(无 FAIL);session_state.json 已初始化,参数已与用户确认 |
-| 01 Fetch | `info.txt` 存在且含原标题/作者/URL/时长/扩展名;`video.*` 存在;run.log 记录 ok |
+| 01 Fetch | `VIDDIR/info.txt` 存在且含原标题/作者/URL/时长/扩展名;`VIDDIR/video.*` 存在;run.log 记录 ok |
 | 02 Transcribe | `subtitle.srt` validate 无错误;`raw_subtitle.txt` 行数 == subtitle.srt 条数(用 `wc -l` 比对) |
 | 03 Normalize | `subtitle.normalized.srt` validate 无错误;条数与原 SRT 差距可解释(仅允许合并,不允许拆分/新增) |
 | 04 Translate | `translated_subtitle.srt` validate 无错误;**行数与源字幕条数一致(由 from-txt 强制)**;标题译文存在;记忆文件已按 memory.md 维护;自检通过(见下) |
@@ -38,7 +39,7 @@ tools/srt_tool.py validate <file.srt>
 - 禁止:重译、改写语义、润色、补充信息。
 - 校对后 validate 必须无警告(空文本清零)。
 
-## 交付清单(06 阶段向用户交付)
+## 交付清单(06 阶段向用户交付,文件均在 VIDDIR 内)
 
 1. `translated_subtitle.proofread.srt`(最终字幕,若 05 被跳过则交付 `translated_subtitle.srt`)
 2. `raw_translated_subtitle.txt`(纯文本版,供复制)
