@@ -23,7 +23,7 @@ tools/srt_tool.py validate <file.srt>
 | 03 Translate | work/`translated_subtitle.srt` validate **无错误且无警告(空文本清零)**;行数与源字幕条数一致(由 compose 强制);标题译文存在;记忆文件已按 memory.md 维护;work/`source_merge.log` 与 work/`selfcheck.log` 存在且内容可读;`blocks/` 存在且块译文齐全(compose 校验);自检清单(见下)全部通过 |
 | 04 Review | work/`review.log` 存在且可读,含全文校对修正记录与整体复核结论;复核后 `translated_subtitle.srt` validate 无错误且无警告(空文本清零);修正量克制(>5% 条目需按失败处置表报告) |
 | 05 Burn | 根:`video.burned.mp4` 存在且 ffprobe 可读;或 work/run.log 记录 skipped |
-| 06 Report | `tools/report.py` 已生成根:`translation_report.md`;产物清单齐全;issues.log 中未解决条目已向用户说明 |
+| 06 Report | `tools/report.py` 已生成根:`translation_report.md`;产物清单齐全;issues.log 中未解决条目已向用户说明;**run.log 无重复 stage 行**(同一 stage/status 只保留一行,重复行已清理);**临时文件使用情况已向用户反馈**(无则明说) |
 
 ## 翻译自检清单(03 阶段 agent 必须逐项执行)
 

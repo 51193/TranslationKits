@@ -13,10 +13,12 @@
    tools/report.py --vid-dir VIDDIR --output VIDDIR/translation_report.md
    ```
 2. 核对:报告内容与 VIDDIR 实际状态一致(工具以文件系统为准);如有需要,在报告末尾「agent 补充说明」小节追加人工观察(如翻译质量抽查结论),追加内容保持简短。
-3. 按 quality.md「交付清单」向用户交付,提示:
+3. **重复检查**:检查 `VIDDIR/work/run.log` 是否有重复 stage 行(同一 stage/status 多次记录),有则清理(保留一行)后重新运行 report.py;确认字幕/译文/报告无重复内容(见 AGENTS.md 铁律 4)。
+4. **临时文件反馈**:检查 `/tmp/opencode/<视频名>/` 是否有残留,清理;在交付对话中向用户反馈本次临时文件使用情况(路径、用途、是否已清理);未使用则明说。
+5. 按 quality.md「交付清单」向用户交付,提示:
    - VIDDIR 根 = 交付物(源视频/烧录视频/封面/info.txt/报告)
    - VIDDIR/work/ = 过程文件(字幕/译文/记忆/状态日志,供审阅与续跑)
-4. 更新 `VIDDIR/work/session_state.json`(stages_completed 追加 report)+ `VIDDIR/work/run.log`。
+6. 更新 `VIDDIR/work/session_state.json`(stages_completed 追加 report)+ `VIDDIR/work/run.log`。
 
 ## 产物
 - 根:`translation_report.md`(自动生成)

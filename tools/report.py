@@ -156,13 +156,43 @@ def gen_report(vid_dir):
         a("- 前情提要 (synopsis_memory.txt): 缺失")
     a("")
 
-    # 5. 运行流水
+    # 5. 运行流水(含重复 stage 行检查)
     run = read_text(os.path.join(work, "run.log"))
     a("## 运行流水 (run.log)")
     a("")
+    if run:
+        from collections import Counter
+        import re
+        seen = Counter()
+        for ln in run.splitlines():
+            m = re.match(r"\[\d{4}-\d{2}-\d{2}[^\]]*\] stage=(\S+) status=(\S+)", ln)
+            if m:
+                seen[f"{m.group(1)}/{m.group(2)}"] += 1
+        dups = {k: v for k, v in seen.items() if v > 1}
+        if dups:
+            a("**注意:存在重复 stage 记录(应清理,只保留一行):**")
+            for k, v in dups.items():
+                a(f"- `{k}` ×{v}")
+            a("")
     a("```")
     a(run.strip() if run else "(run.log 缺失)")
     a("```")
+    a("")
+
+    # 6. 临时文件检查
+    tmp_dir = os.path.join("/tmp/opencode", os.path.basename(vid_dir.rstrip("/")))
+    a("## 临时文件 (/tmp/opencode)")
+    a("")
+    if os.path.isdir(tmp_dir):
+        leftovers = [f for f in sorted(os.listdir(tmp_dir)) if not f.endswith((".part",))]
+        if leftovers:
+            a(f"**残留文件({len(leftovers)} 个),应清理并向用户反馈:**")
+            for f in leftovers:
+                a(f"- {tmp_dir}/{f}")
+        else:
+            a("- 目录存在但为空(无需处理)。")
+    else:
+        a("- 未使用临时文件。")
     a("")
 
     # 6. 已知问题
