@@ -37,10 +37,13 @@
 |------|------------------------------|
 | FAIL:未找到 yt-dlp/ffmpeg/ffprobe/python3 | 记录 issues.log(VIDDIR 未建则记工作区根);告知用户需要安装的系统包,请用户安装后重跑预检 |
 | FAIL:whisper/srt 模块缺失 | 记录 issues.log;询问用户是否同意运行 `tools/setup_venv.sh` 创建虚拟环境(该脚本会 pip install openai-whisper,属大动作,需用户同意);同意后运行并重跑预检 |
+| FAIL:torch 导入失败 | 记录 issues.log;告知用户 venv 可能损坏,询问是否同意运行 setup_venv.sh 重建 |
 | WARN:未找到 node | 记录;告知用户部分站点可能下载失败,继续;若后续 fetch 失败再处置 |
+| **GPU:有硬件但不可用**(check_env FAIL) | **停止**,按 AGENTS.md「GPU 询问协议」询问用户:是否有 GPU?是否尝试启用 GPU(可能需安装/更换驱动或 torch 版本)?还是 CPU 继续?决定后写入 `session_state.json` 的 `params.gpu`(auto/cpu)并重跑 check_env |
+| **GPU:未检测到**(check_env WARN) | 向用户确认一次:是否确有 GPU 设备(独显未识别/外接 GPU)?确认后按 CPU 继续,`params.gpu=cpu` |
 | FAIL:工作区不可写 | 告知用户换一个可写路径,请用户提供 |
 | FAIL:URL 无法连通(网络原因) | **停下来向用户要代理**:`请提供代理地址(如 http://127.0.0.1:7890),或确认网络已通`;拿到代理后填入 params.proxy 并重跑 check_env |
 | FAIL:URL 可达但 yt-dlp 提取失败 | 告知用户:URL 可能需登录/私有/地区限制;请用户确认 URL 有效性或提供可访问的 URL |
 | 无法判断 | 走问题协议(AGENTS.md),记录并告知用户 |
 
-> 本阶段只做预检与确认。任何 FAIL 都必须解决后才进入 01。
+> 本阶段只做预检与确认。任何 FAIL 都必须解决后才进入 01。GPU 状态未与用户确认前,不得进入转写/烧录阶段。

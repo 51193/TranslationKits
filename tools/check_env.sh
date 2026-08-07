@@ -83,26 +83,80 @@ else
 fi
 
 echo "==== 3. GPU 计算设备 (CUDA/ROCm) ===="
+# 3a. 硬件检测(lspci)
+GPU_HW="$(lspci 2>/dev/null | grep -iE "VGA compatible|3D controller" | head -5 || true)"
+if [[ -n "$GPU_HW" ]]; then
+  ok "检测到 GPU 硬件:"
+  echo "$GPU_HW" | sed 's/^/         /'
+else
+  warn "lspci 未检测到 GPU 硬件(或 lspci 不可用)"
+fi
+
+# 3b. torch 侧检测与设备可用性探测(注意:本段不得使用单引号,与 shell 单引号包裹冲突)
 GPU_DETECT="$(
-  "$WHISPER_PY" -c '
-import torch
-names = []
+  "$WHISPER_PY" -c "
+import sys
+try:
+    import torch
+except Exception as e:
+    print('broken:' + str(e)[:80])
+    sys.exit(0)
+names, ok_dev = [], None
 if torch.cuda.is_available():
     for i in range(torch.cuda.device_count()):
-        names.append(f"[{i}] {torch.cuda.get_device_name(i)}")
-if getattr(torch.version, "hip", None):
-    print("rocm:" + str(torch.version.hip) + ":" + "; ".join(names) if names else "rocm:" + str(torch.version.hip))
-elif names:
-    print("cuda:" + "; ".join(names))
-else:
-    print("cpu")
-' 2>/dev/null || echo "unknown"
+        n = torch.cuda.get_device_name(i)
+        names.append(f'[{i}] {n}')
+        # 跳过名字明显是 CPU 的设备(ROCm 设备名读取 bug 场景);此类设备执行
+        # kernel 会直接段错误,且段错误无法被 try/except 捕获。
+        if 'processor' in n.lower() or ' cpu ' in f' {n.lower()} ':
+            continue
+        try:
+            x = torch.randn(16, device=f'cuda:{i}')
+            torch.cuda.synchronize()
+            del x
+            if ok_dev is None:
+                ok_dev = f'cuda:{i}'
+                break
+        except Exception:
+            pass
+kind = 'rocm' if getattr(torch.version, 'hip', None) else ('cuda' if names else 'cpu')
+names_txt = ' '.join(names)
+ok = ok_dev if ok_dev else 'none'
+print(f'{kind}:{names_txt}:ok={ok}')
+" 2>/dev/null || echo "unknown"
 )"
+
+# 3c. 状态分类:可用 / 有硬件但不可用(FAIL,必须询问用户) / 无硬件(仅警告,仍需询问确认)
 case "$GPU_DETECT" in
-  rocm*) ok "ROCm 可用(${GPU_DETECT#rocm:})" ;;
-  cuda*) ok "CUDA 可用: ${GPU_DETECT#cuda:}" ;;
-  cpu)   warn "未检测到可用 GPU,whisper 将以 CPU 运行,速度较慢" ;;
-  unknown) warn "无法检测 torch 设备信息(可能 torch 缺失);以 CPU 兜底" ;;
+  broken:*)
+    fail "torch 导入失败(${GPU_DETECT#broken:});请运行 tools/setup_venv.sh 重建环境,或向用户报告" ;;
+  rocm:*:ok=*none)
+    if [[ -n "$GPU_HW" ]]; then
+      fail "检测到 GPU 硬件但 torch 无法使用(${GPU_DETECT#rocm:});需停下询问用户:是否有 GPU?是否尝试启用 GPU(可能需安装/更换驱动与 torch 版本)?还是用 CPU 继续?"
+    else
+      warn "torch 检测到 ROCm 设备但全部不可用;按 CPU 兜底,仍需向用户确认"
+    fi
+    ;;
+  cuda:*:ok=*none)
+    if [[ -n "$GPU_HW" ]]; then
+      fail "检测到 GPU 硬件但 torch 无法使用(${GPU_DETECT#cuda:});需停下询问用户:是否有 GPU?是否尝试启用 GPU?还是用 CPU 继续?"
+    else
+      warn "torch 检测到 CUDA 设备但全部不可用;按 CPU 兜底,仍需向用户确认"
+    fi
+    ;;
+  rocm:*:ok=*)
+    ok "GPU 可用(ROCm ${GPU_DETECT#rocm:})" ;;
+  cuda:*:ok=*)
+    ok "GPU 可用(CUDA ${GPU_DETECT#cuda:})" ;;
+  cpu)
+    if [[ -n "$GPU_HW" ]]; then
+      fail "检测到 GPU 硬件,但 torch 未检测到可用设备(可能驱动/版本不匹配);需停下询问用户:是否有 GPU?是否尝试启用 GPU?还是用 CPU 继续?"
+    else
+      warn "未检测到可用 GPU,转写/烧录将使用 CPU;开始前仍需向用户确认:是否确有 GPU 设备(如独显未识别/外接 GPU)?"
+    fi
+    ;;
+  unknown)
+    warn "无法检测 torch 设备信息(可能 torch 缺失);以 CPU 兜底" ;;
 esac
 
 echo "==== 4. 工作区检查 ===="

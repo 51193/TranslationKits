@@ -29,6 +29,11 @@ def detect_device(requested: str):
         if torch.cuda.is_available():
             for i in range(torch.cuda.device_count()):
                 name = torch.cuda.get_device_name(i)
+                # 跳过名字明显是 CPU 的设备(ROCm 设备名读取 bug 的场景);此类设备
+                # 一旦执行 kernel 会直接段错误,且段错误无法被 try/except 捕获。
+                if "processor" in name.lower() or " cpu " in f" {name.lower()} ":
+                    print(f"[transcribe] GPU[{i}] {name} 疑似非 GPU 设备,跳过")
+                    continue
                 try:
                     probe = torch.randn(16, device=f"cuda:{i}")
                     torch.cuda.synchronize()

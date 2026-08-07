@@ -36,10 +36,11 @@
 | 现象 | 处置(照表执行) |
 |------|------------------|
 | ffmpeg 失败 | 检查 `VIDDIR/video.*` 是否存在且非空;损坏则重新 fetch(需用户同意);ffmpeg 本身错误 → 走问题协议 |
-| transcribe.py 报"所有 GPU 均不可用"或 HIP 错误 | 属驱动/版本兼容问题,脚本已自动回退 CPU;记录 issues.log(含 GPU 型号与 torch 版本),告知用户已用 CPU 转写,建议排查 GPU 栈 |
+| 转写日志显示"回退 CPU"/"所有 GPU 均不可用" | **停下核对 GPU 决定**(session_state.json 的 params.gpu):gpu=cpu(用户已确认)→ 继续并说明;gpu=auto 或未记录 → 按 AGENTS.md「GPU 询问协议」询问用户(是否修复 GPU 或用 CPU 继续),决定后更新 params.gpu 再继续 |
 | transcribe.py exit 1,缺模型文件或网络下载模型失败 | 模型下载需网络;请求代理或确认网络后重试;仍失败 → 走问题协议 |
 | 转写语言明显不对(如英文视频输出中文) | 确认 params.language;修正后加 `--force` 重跑(属文档允许操作,告知用户) |
 | validate 有错误(序号/时间轴) | 重跑转写(`--force`);仍错误 → 走问题协议 |
 | validate 有警告(重叠/间隙) | 记录;whisper 原生特性,合理范围内放行;警告数量异常(>10%)→ 告知用户 |
 
 > 禁止:自行换转写引擎、自行安装额外依赖、自行调 whisper 参数做实验、把产物写到 VIDDIR 以外。
+> 说明:GPU 探测与自动回退是工具行为;但**是否接受 CPU 是用户决定**,不得默默降级——见 AGENTS.md「GPU 询问协议」。

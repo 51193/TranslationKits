@@ -19,7 +19,7 @@ tools/setup_venv.sh
 tools/check_env.sh --url <URL> --workspace <WS_DIR>
 
 # 3. 启动工作流(opencode 打开本仓库后)
-opencode "翻译 https://www.youtube.com/watch?v=xxx 到 /home/cc/Videos/Translates/xxx"
+opencode "翻译 https://www.youtube.com/watch?v=xxx 到 <你的工作区>/Translates/xxx"
 ```
 
 agent 会:确认入参 → 环境预检 → 抓取 → 转写 → 翻译(含源整理)→ 烧录(可选)→ 交付报告。全程产物在工作区,支持断点续跑。
@@ -31,7 +31,7 @@ agent 会:确认入参 → 环境预检 → 抓取 → 转写 → 翻译(含源�
 | 层 | 位置 | 内容 |
 |----|------|------|
 | 项目文件夹 | 本仓库(`TranslationKits/`) | 只读文档与工具,**禁止写入任何产物** |
-| 工作区根 | 用户指定,如 `/home/cc/Videos/Translates` | 只容纳各视频目录(直接子目录) |
+| 工作区根 | 用户指定,如 `<你的工作区>/Translates` | 只容纳各视频目录(直接子目录) |
 | 视频目录 VIDDIR | `<workspace>/<视频名称>/` | 该视频**全部**中间产物、状态、日志、记忆、交付物;目录名由 fetch 阶段从标题生成(空白→`_`,去掉 `" ' ,`) |
 
 ## 目录结构

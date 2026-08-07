@@ -6,8 +6,8 @@
 
 | 名称 | 是什么 | 位置示例 | 可写内容 |
 |------|--------|----------|----------|
-| **项目文件夹** | 本 kits 仓库(TranslationKits):AGENTS.md、workflows/、tools/ | `/home/cc/Documents/code/TranslationKits` | **禁止写入任何产物**。agent 只读文档与工具 |
-| **工作区根** | 用户指定的目录,可容纳多个视频 | `/home/cc/Videos/Translates` | 只允许直接子目录 = 各视频目录(见下) |
+| **项目文件夹** | 本 kits 仓库(TranslationKits):AGENTS.md、workflows/、tools/ | `<项目克隆路径>/TranslationKits` | **禁止写入任何产物**。agent 只读文档与工具 |
+| **工作区根** | 用户指定的目录,可容纳多个视频 | `<你的工作区>/Translates` | 只允许直接子目录 = 各视频目录(见下) |
 | **视频目录(VIDDIR)** | 每个视频的全部产物所在,名称 = 视频标题安全名 | `<workspace>/<视频名称>/` | 该视频全部中间产物、状态、日志、记忆、交付物 |
 
 - **VIDDIR 记号**:本文档及 stages/ 中所有 `VIDDIR` 指 `<workspace>/<视频名称>/`。视频名称由 fetch 阶段从元数据标题生成(安全化规则:空白 → `_`,去掉 `"` `'` `,`),并记录在 `VIDDIR/info.txt` 的「视频目录」行。
@@ -44,6 +44,7 @@
 | `whisper_model` | 否 | `turbo` | 转写模型:tiny/base/small/medium/large/large-v3/turbo |
 | `proxy` | 否 | 无 | HTTP 代理地址(如 `http://127.0.0.1:7890`);环境不通时向用户索取 |
 | `domain_hint` | 否 | 空 | 视频主题提示词(注入翻译上下文) |
+| `gpu` | 否 | `auto` | GPU 策略:auto(转写/烧录自动用可用 GPU)或 cpu;**修改必须来自用户决定**(见 AGENTS.md「GPU 询问协议」) |
 | `burn_enabled` | 否 | `false` | 是否执行烧录(04 阶段);开启需用户明确要求 |
 
 **确认方式**:会话开始时把表格念给用户核对,缺省值直接采用并在对话中说明。URL 与工作区缺一不可,缺失必须向用户询问,不得编造。
@@ -79,7 +80,7 @@
   "url": "https://...",
   "workspace": "/abs/path",
   "vid_dir": "/abs/path/<视频名称>",
-  "params": { "language": "en", "whisper_model": "turbo", "proxy": null, "domain_hint": "", "burn_enabled": false },
+  "params": { "language": "en", "whisper_model": "turbo", "proxy": null, "domain_hint": "", "gpu": "auto", "burn_enabled": false },
   "stages_completed": ["preflight", "fetch", "transcribe", "translate", "burn", "report"]
 }
 ```
