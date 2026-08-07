@@ -56,4 +56,4 @@
     --output VIDDIR/work/translated_subtitle.srt \
     --lines VIDDIR/work/translated_lines.txt
   ```
-- 全部块完成后,执行 quality.md「翻译自检清单」8 项(含空文本清零与重复自检,旧"校对"职责)。
+- 全部块完成后,执行 quality.md「翻译自检清单」8 项(含空文本清零与重复自检)。

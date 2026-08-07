@@ -36,7 +36,7 @@ tools/srt_tool.py validate <file.srt>
 7. **重复自检**:全文终检时确认无相邻重复字幕(语义重复条目)。
 8. **全文终检**:全部块完成后,通读 `translated_subtitle.srt` 一遍,确认无漏译错位;发现块间不一致处回改。
 
-> 说明:旧流程的"规范化"与"校对"独立阶段已并入本阶段(见 [workflow.md](workflow.md) 设计原则)——源整理发生在翻译前,去重/填空类检查由上述自检完成。
+> 说明:合句(源整理)发生在翻译前,去重/填空类检查由上述自检完成,并在 04 复核阶段全文再次把关(见 [workflow.md](workflow.md) 设计原则)。
 
 ## 06 阶段(Report):报告由工具生成
 
@@ -57,4 +57,4 @@ tools/srt_tool.py validate <file.srt>
 ## 成本与效率建议(非强制)
 
 - 短视频(≤15 分钟)一次全量翻译;长视频分块(每块 20~40 句),块间通过记忆文件衔接。
-- 块翻译使用 prompts/translate-module.md 的约定,但由你(agent)决定块大小与重试策略——这是本 kits 与旧版 JSON 流水线最大的区别:把判断力还给模型。
+- 块翻译使用 [prompts/translate-module.md](prompts/translate-module.md) 的约定,但由你(agent)决定块大小与重试策略——把判断力还给模型。

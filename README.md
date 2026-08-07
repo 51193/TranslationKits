@@ -24,9 +24,7 @@ tools/check_env.sh --url <URL> --workspace <WS_DIR>
 opencode "翻译 https://www.youtube.com/watch?v=xxx 到 <你的工作区>/Translates/xxx"
 ```
 
-agent 会:确认入参 → 环境预检 → 抓取 → 转写 → 翻译(含源整理)→ 复核(全文校对+整体复核)→ 烧录(可选)→ 交付报告。全程产物在工作区,支持断点续跑。
-
-> 流程为旧版代码流水线的"倒置"实现:不再设独立的规范化/校对阶段(由翻译阶段内的源整理与自检承担),中间产物精简为最小集合(见 workflows/subtitle-translation/workflow.md 设计原则)。
+agent 会:确认入参 → 环境预检 → 抓取 → 转写 → 翻译(含源整理)→ 复核(全文校对+整体复核)→ 烧录(可选)→ 交付报告。全程产物在工作区,支持断点续跑。流程细节见 [workflow.md](workflows/subtitle-translation/workflow.md) 及其链接的全部文档。
 
 ## 目录分层(必须遵守)
 
@@ -67,7 +65,3 @@ agent 会:确认入参 → 环境预检 → 抓取 → 转写 → 翻译(含源�
 5. **问题必须上报**:任何阻碍走「问题协议」——记录 issues.log、告知用户、等待指示、反馈 kits 缺陷。
 6. **产物隔离与分层**:交付物只放 VIDDIR 根(源视频/烧录/封面/info/报告),其余全部进 `VIDDIR/work/`;项目文件夹与工作区根(视频目录以外)禁止落盘。
 7. **元指令闭合**:入参、阶段、文件命名、日志格式全部由文档定义;agent 不得自行发明文件名、目录名或流程步骤。
-
-## 与旧项目的关系
-
-旧项目 `VideoSubtitleTranslator`(.NET 10 控制台)是把流程硬编码在 C# 里、用 JSON 输出契约约束 LLM 的实现,已停止演进。本 kit 是其"倒置"版本:流程定义文档化,执行权交给通用 agent。产物布局与记忆机制保持兼容,便于对照迁移。
