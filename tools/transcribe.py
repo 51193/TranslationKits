@@ -13,6 +13,10 @@ import sys
 from datetime import timedelta
 from pathlib import Path
 
+_venv_py = Path(__file__).resolve().parent.parent / ".venv" / "bin" / "python3"
+if _venv_py.is_file() and sys.executable != str(_venv_py):
+    os.execv(str(_venv_py), [str(_venv_py), __file__] + sys.argv[1:])
+
 import srt
 
 
@@ -23,9 +27,18 @@ def detect_device(requested: str):
     try:
         import torch
         if torch.cuda.is_available():
-            gpu_name = torch.cuda.get_device_name(0) if torch.cuda.device_count() > 0 else "GPU"
-            print(f"[transcribe] 检测到 GPU: {gpu_name},使用 CUDA/ROCm 加速")
-            return "cuda"
+            for i in range(torch.cuda.device_count()):
+                name = torch.cuda.get_device_name(i)
+                try:
+                    probe = torch.randn(16, device=f"cuda:{i}")
+                    torch.cuda.synchronize()
+                    del probe
+                    print(f"[transcribe] 使用 GPU[{i}]: {name}")
+                    return f"cuda:{i}"
+                except Exception as e:
+                    print(f"[transcribe] GPU[{i}] {name} 不可用({type(e).__name__}),跳过")
+            print("[transcribe] 所有 GPU 均不可用,回退 CPU")
+            return "cpu"
     except Exception:
         pass
 
@@ -79,7 +92,7 @@ def main():
     parser.add_argument("--output", required=True, help="输出 SRT 路径")
     parser.add_argument("--model", default="turbo", help="模型: tiny/base/small/medium/large/large-v3/turbo")
     parser.add_argument("--language", default="en", help="语言代码: zh/en/ja 等,留空=自动检测")
-    parser.add_argument("--device", default="auto", help="计算设备: auto/cpu/cuda")
+    parser.add_argument("--device", default="auto", help="计算设备: auto/cpu/cuda/cuda:1 等(HIP_VISIBLE_DEVICES 优先于此处)")
     parser.add_argument("--force", action="store_true", help="强制重新转写,忽略缓存")
 
     args = parser.parse_args()

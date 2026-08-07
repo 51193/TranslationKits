@@ -101,23 +101,32 @@ meta_rc=$?
 rm -f "$meta_file"
 [[ $meta_rc -ne 0 ]] && { echo "[fetch] 元数据解析失败,请向用户报告。" >&2; exit 1; }
 
-# 4. 视频(存在则跳过;检查仅限本视频目录)
-if ls "$VID_DIR"/video.* >/dev/null 2>&1; then
-  echo "[fetch] 视频已存在,跳过下载: $(ls "$VID_DIR"/video.* | head -1)"
+# 4. 封面(存在则跳过;独立模板,避免与视频共用 -o 导致命名错乱)
+if [[ -f "$VID_DIR/thumbnail.png" ]]; then
+  echo "[fetch] 封面已存在,跳过: $VID_DIR/thumbnail.png"
+else
+  if ! timeout 180 env "${proxy_env[@]}" yt-dlp --socket-timeout 30 --retries 2 --no-warnings \
+    --skip-download --write-thumbnail --convert-thumbnails png \
+    -o "$VID_DIR/thumbnail" "$URL" 2>/tmp/fetch_thumb.err; then
+    echo "[fetch] 警告:封面下载失败(不影响后续流程)。错误信息:" >&2
+    head -c 300 /tmp/fetch_thumb.err >&2
+    echo "" >&2
+  fi
+fi
+
+# 5. 视频(存在则跳过;检查仅限本视频目录;.part 断点文件不算成品,应继续下载续传)
+existing_video="$(ls "$VID_DIR"/video.* 2>/dev/null | grep -vE '\.part$' | head -1 || true)"
+if [[ -n "$existing_video" ]]; then
+  echo "[fetch] 视频已存在,跳过下载: $existing_video"
 else
   if ! timeout 600 env "${proxy_env[@]}" yt-dlp --socket-timeout 30 --retries 3 --no-warnings \
-    --restrict-filenames --write-thumbnail --convert-thumbnails png \
-    -o "$VID_DIR/video.%(ext)s" "$URL" 2>/tmp/fetch_video.err; then
+    --restrict-filenames -o "$VID_DIR/video.%(ext)s" "$URL" 2>/tmp/fetch_video.err; then
     echo "[fetch] 视频下载失败。错误信息:" >&2
     head -c 500 /tmp/fetch_video.err >&2
     echo "" >&2
     echo "[fetch] 请向用户报告。常见原因:网络中断、需要代理、源站限速、磁盘空间不足。" >&2
     exit 1
   fi
-fi
-
-if [[ ! -f "$VID_DIR/thumbnail.png" ]]; then
-  echo "[fetch] 警告:封面文件未生成(thumbnail.png),不影响后续流程,忽略。" >&2
 fi
 
 echo "[fetch] 完成:元数据与视频已就绪于 $VID_DIR"

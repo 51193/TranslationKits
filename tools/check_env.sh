@@ -86,18 +86,22 @@ echo "==== 3. GPU 计算设备 (CUDA/ROCm) ===="
 GPU_DETECT="$(
   "$WHISPER_PY" -c '
 import torch
+names = []
 if torch.cuda.is_available():
-    print("cuda:" + torch.cuda.get_device_name(0) if torch.cuda.device_count() > 0 else "cuda")
-elif getattr(torch.version, "hip", None):
-    print("rocm:ROCm " + str(torch.version.hip))
+    for i in range(torch.cuda.device_count()):
+        names.append(f"[{i}] {torch.cuda.get_device_name(i)}")
+if getattr(torch.version, "hip", None):
+    print("rocm:" + str(torch.version.hip) + ":" + "; ".join(names) if names else "rocm:" + str(torch.version.hip))
+elif names:
+    print("cuda:" + "; ".join(names))
 else:
     print("cpu")
 ' 2>/dev/null || echo "unknown"
 )"
 case "$GPU_DETECT" in
-  cuda*) ok "CUDA 可用: ${GPU_DETECT#cuda:};whisper 将使用 GPU 加速" ;;
-  rocm*) ok "ROCm 可用: ${GPU_DETECT#rocm:};whisper 将使用 GPU 加速" ;;
-  cpu)   warn "未检测到 GPU,whisper 将以 CPU 运行,速度较慢" ;;
+  rocm*) ok "ROCm 可用(${GPU_DETECT#rocm:})" ;;
+  cuda*) ok "CUDA 可用: ${GPU_DETECT#cuda:}" ;;
+  cpu)   warn "未检测到可用 GPU,whisper 将以 CPU 运行,速度较慢" ;;
   unknown) warn "无法检测 torch 设备信息(可能 torch 缺失);以 CPU 兜底" ;;
 esac
 

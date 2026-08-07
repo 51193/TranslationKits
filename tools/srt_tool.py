@@ -15,8 +15,14 @@
 #   tools/srt_tool.py from-txt --source subtitle.srt --text translated_lines.txt --output translated_subtitle.srt
 #   tools/srt_tool.py validate translated_subtitle.srt
 import argparse
+import os
 import sys
 from datetime import timedelta
+from pathlib import Path
+
+_venv_py = Path(__file__).resolve().parent.parent / ".venv" / "bin" / "python3"
+if _venv_py.is_file() and sys.executable != str(_venv_py):
+    os.execv(str(_venv_py), [str(_venv_py), __file__] + sys.argv[1:])
 
 import srt
 
