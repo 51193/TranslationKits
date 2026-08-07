@@ -1,6 +1,10 @@
 # 阶段 03 — Translate 翻译(核心,含源整理)
 
 ## 目标
+
+> **阶段导航**:上一阶段:[02 Transcribe](02-transcribe.md) | 下一阶段:[04 Review](04-review.md)
+> 工作流总纲:[workflow.md](../workflow.md) | 工具清单:[tools.md](../tools.md) | 质量门槛:[quality.md](../quality.md)
+
 把源字幕逐句翻译为中文,并维护四个记忆文件,产出 `translated_subtitle.srt`。**全部产物与记忆文件在 VIDDIR 内**。
 
 本阶段合并了旧流程的"规范化"与"校对"两个独立阶段(理由见 workflow.md 设计原则):
@@ -14,7 +18,7 @@
 ## 步骤
 
 ### A. 源整理(旧"规范化")
-1. 通读 `VIDDIR/work/subtitle.srt` 全部条目,按 prompts/normalize.md 判定合并:
+1. 通读 `VIDDIR/work/subtitle.srt` 全部条目,按 [prompts/normalize.md](../prompts/normalize.md) 判定合并:
    - 默认不合并;只有语法/句法被明显错误切断时才合并。
    - 得出合并清单:`N-M`(第 N 到 M 条合并为一条)。
 2. **用工具执行合并**(禁止手算序号或写脚本;合并日志由工具生成):
@@ -29,7 +33,7 @@
 4. 自检:合并量克制(>30% 条目停止并走问题协议);合并后抽查确认语义未破坏(被拼接的文本可再用 Edit 微调,如标点衔接)。
 
 ### B. 标题翻译
-按 prompts/title.md 翻译,写入 `VIDDIR/work/translated_title.txt`(已存在则跳过)。
+按 [prompts/title.md](../prompts/title.md) 翻译,写入 `VIDDIR/work/translated_title.txt`(已存在则跳过)。
 
 ### C. 分块翻译(块拆分与拼接由工具完成)
 1. **拆块**(块大小自定:短视频一次全量即 `--size 0`;长视频 20~40 句/块):
@@ -38,7 +42,7 @@
    ```
    生成 `work/blocks/block_0001.srt...` 与 `manifest.txt`(块→行范围映射,即分块方案中间产物)。
 2. 读 `VIDDIR` 内四个记忆文件(不存在视为"尚无")。
-3. 逐块翻译(按 prompts/translate-module.md):
+3. 逐块翻译(按 [prompts/translate-module.md](../prompts/translate-module.md)):
    - 读 `VIDDIR/work/blocks/block_000N.srt` → 注入记忆文件与上文译文 → 请求模型输出 JSON → 校验行数 → 提取译文。
    - **块译文落盘**:译文逐行写入 `VIDDIR/work/blocks/translated_000N.txt`(每行一句,与块内条数一致)。
    - 按 memory.md 更新四个记忆文件。
@@ -64,7 +68,7 @@
 - 四个记忆文件(如内容有更新)
 
 ## 质量门槛
-见 quality.md 阶段 03(自检清单 8 项全部执行并全部通过)。
+见 [quality.md 阶段 03](../quality.md)(自检清单 8 项全部执行并全部通过)。merge/split/compose 用法见 [tools.md](../tools.md#merge) 对应章节。
 
 ## 失败处置表
 

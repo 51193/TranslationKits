@@ -9,12 +9,27 @@
 
 ## 必读顺序(每次开工都重读一遍,不要凭记忆)
 
-1. `workflows/subtitle-translation/workflow.md` — 流程总纲、入参清单、阶段总览
-2. `workflows/subtitle-translation/tools.md` — 本工作流全部工具清单与用法
-3. `workflows/subtitle-translation/quality.md` — 质量门槛(每阶段验收标准)
-4. `workflows/subtitle-translation/memory.md` — 记忆文件约定
-5. 当前阶段对应的 `workflows/subtitle-translation/stages/*.md`
-6. 需要的提示词片段 `workflows/subtitle-translation/prompts/*.md`
+1. [workflow.md](workflows/subtitle-translation/workflow.md) — 流程总纲、入参清单、阶段总览
+2. [tools.md](workflows/subtitle-translation/tools.md) — 本工作流全部工具清单与用法
+3. [quality.md](workflows/subtitle-translation/quality.md) — 质量门槛(每阶段验收标准)
+4. [memory.md](workflows/subtitle-translation/memory.md) — 记忆文件约定
+5. 当前阶段对应的 [stages/00-preflight.md](workflows/subtitle-translation/stages/00-preflight.md) ~ [stages/06-report.md](workflows/subtitle-translation/stages/06-report.md)(各阶段互为前后链接)
+6. 需要的提示词片段 [prompts/](workflows/subtitle-translation/prompts/title.md)(title / normalize / translate-module / ad-policy)
+
+## 文档导航(本仓库文档图)
+
+以本文件为入口,所有文档均可经链接到达,无孤立节点:
+
+```
+AGENTS.md(入口)
+├── [workflow.md](workflows/subtitle-translation/workflow.md) 流程总纲
+│   ├── [tools.md](workflows/subtitle-translation/tools.md) 工具清单(每工具章节有锚点,stage 步骤内直接链入)
+│   ├── [quality.md](workflows/subtitle-translation/quality.md) 质量门槛(每阶段验收)
+│   ├── [memory.md](workflows/subtitle-translation/memory.md) 记忆约定
+│   ├── stages/ 阶段手册(双向链表:00↔01↔02↔03↔04↔05↔06,互相指向前后阶段)
+│   └── prompts/ 提示词片段(被对应 stage 引用)
+└── [README.md](README.md) 仓库说明(亦指向本文件)
+```
 
 ## 铁律(违反任意一条即流程失败)
 

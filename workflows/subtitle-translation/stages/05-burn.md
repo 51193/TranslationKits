@@ -1,6 +1,10 @@
 # 阶段 05 — Burn 烧录(可选)
 
 ## 目标
+
+> **阶段导航**:上一阶段:[04 Review](04-review.md) | 下一阶段:[06 Report](06-report.md)
+> 工作流总纲:[workflow.md](../workflow.md) | 工具清单:[tools.md](../tools.md) | 质量门槛:[quality.md](../quality.md)
+
 将最终中文字幕烧录进视频,产出 `VIDDIR/video.burned.mp4`。
 
 ## 前置
@@ -31,7 +35,7 @@
 - `video.burned.mp4`(已存在则自动跳过;字幕源为 VIDDIR/work/translated_subtitle.srt)
 
 ## 质量门槛
-见 quality.md 阶段 05。
+见 [quality.md 阶段 05](../quality.md);burn.sh 用法见 [tools.md#burn](../tools.md#burn)。
 
 ## 失败处置表
 

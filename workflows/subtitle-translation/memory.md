@@ -1,5 +1,7 @@
 # 记忆文件约定
 
+> 相关:[workflow.md](workflow.md)(布局) | [prompts/translate-module.md](prompts/translate-module.md)(注入方式) | [prompts/ad-policy.md](prompts/ad-policy.md)(广告判定)
+
 翻译是跨块有状态的过程。四个记忆文件承载状态,**位于 `VIDDIR/work/`**(`<workspace>/<视频名称>/work/`,见 workflow.md「三个目录概念」与「视频目录布局」),人类可审阅、可续跑。与运行日志、状态文件一起留在 work/ 内,不写入项目文件夹;交付物(字幕等)在 VIDDIR 根。
 
 ## 文件与格式
@@ -24,7 +26,7 @@
 - `synopsis_memory.txt`:每块更新后如果主线有推进,重写整段;写错即覆盖,不存在追加。
 - `ad_memory.txt`:每检测到一段广告,追加一行概括(与已有行重复则不追加)。概括须覆盖:品牌/产品、推广话术要点。
 
-## 广告判定(与 prompts/ad-policy.md 一致)
+## 广告判定(与 [ad-policy.md](prompts/ad-policy.md) 一致)
 
 口播推广(赞助感谢、注册领奖、优惠码、置顶链接、导流注册、关注三连、专属折扣等)一律视为广告段:
 - 广告段**必须翻译**,不得漏译,不得跳过。

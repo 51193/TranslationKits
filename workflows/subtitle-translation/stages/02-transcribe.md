@@ -1,6 +1,10 @@
 # 阶段 02 — Transcribe 转写
 
 ## 目标
+
+> **阶段导航**:上一阶段:[01 Fetch](01-fetch.md) | 下一阶段:[03 Translate](03-translate.md)
+> 工作流总纲:[workflow.md](../workflow.md) | 工具清单:[tools.md](../tools.md) | 质量门槛:[quality.md](../quality.md)
+
 从视频抽取音频,whisper 转写为句级时间戳字幕。**全部产物写入 VIDDIR**。
 
 ## 前置
@@ -29,7 +33,7 @@
 - work/:`audio.wav`、`subtitle.srt`
 
 ## 质量门槛
-见 quality.md 阶段 02(validate 无错误)。
+见 [quality.md 阶段 02](../quality.md)(validate 无错误;validate 用法见 [tools.md#validate](../tools.md#validate))。
 
 ## 失败处置表
 

@@ -1,6 +1,10 @@
 # 阶段 00 — Preflight 预检
 
 ## 目标
+
+> **阶段导航**:上一阶段:[入口:AGENTS.md](../../../AGENTS.md) | 下一阶段:[01 Fetch](01-fetch.md)
+> 工作流总纲:[workflow.md](../workflow.md) | 工具清单:[tools.md](../tools.md) | 质量门槛:[quality.md](../quality.md)
+
 - 确认全部入参(workflow.md 入参清单)。
 - 验证环境与 URL 连通性。
 - 确定 VIDDIR(续跑或新任务),初始化/恢复状态。
@@ -19,6 +23,7 @@
    ```bash
    tools/check_env.sh --workspace <workspace> --url <url> [--proxy <proxy>] | tee VIDDIR/work/preflight.log
    ```
+   工具用法见 [check_env.sh](../tools.md#check-env)。
    - exit 0 → 通过。
    - exit 2 → 有警告,向用户简述警告内容后继续。
    - exit 1 → 看输出里 FAIL 项,按下方失败处置表处置。
@@ -29,7 +34,7 @@
 - 续跑:确认 `session_state.json` 有效。
 
 ## 质量门槛
-见 quality.md 阶段 00。
+见 [quality.md 阶段 00](../quality.md)。
 
 ## 失败处置表
 

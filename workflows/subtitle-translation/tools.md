@@ -13,6 +13,7 @@
 
 ---
 
+<a id="setup-venv"></a>
 ## 1. setup_venv.sh — 创建 Python 虚拟环境
 
 创建 `TranslationKits/.venv` 并安装依赖(openai-whisper、srt)。
@@ -25,6 +26,7 @@ tools/setup_venv.sh
 - 需用户同意后才能运行(属安装依赖的大动作)。
 - GPU 加速的 torch 版本见 02 阶段说明;本工具安装的是默认(CUDA)版 torch,AMD ROCm 机器需另行处理(见 check_env.sh 输出与 00 阶段失败处置表)。
 
+<a id="check-env"></a>
 ## 2. check_env.sh — 环境预检(00 阶段起步必跑)
 
 ```
@@ -47,6 +49,7 @@ tools/check_env.sh [--workspace DIR] [--url URL] [--proxy PROXY]
 
 退出码:`0`=全部通过;`1`=有 FAIL(禁止继续,照 00 阶段失败处置表);`2`=仅警告(可继续)。
 
+<a id="fetch"></a>
 ## 3. fetch.sh — 抓取元数据、视频与封面(01 阶段)
 
 ```
@@ -61,6 +64,7 @@ tools/fetch.sh --url URL --workspace DIR [--proxy PROXY]
 - 网络/超时均有硬超时与断点续传;失败时输出常见原因指引(URL 无效/需登录/地区限制/需代理)。
 - 退出码:`0`=成功;`1`=失败(元数据失败或视频下载失败)。
 
+<a id="transcribe"></a>
 ## 4. transcribe.py — whisper 音频转写为句级 SRT(02 阶段)
 
 ```
@@ -73,12 +77,14 @@ tools/transcribe.py <audio> --output <out.srt> [--model <M>] [--language <L>] [-
 - 输出已存在且不早于音频时自动跳过;`--force` 强制重跑。
 - 退出码:`0`=成功;`1`=失败(缺模型/网络下载失败等,按 02 失败处置表)。
 
+<a id="srt-tool"></a>
 ## 5. srt_tool.py — SRT 结构工具(校验/转换/合并/拆块/拼块)
 
 ```
 tools/srt_tool.py <子命令>
 ```
 
+<a id="validate"></a>
 ### 5.1 validate — 结构校验(每个 SRT 产物生成后必跑)
 
 ```
@@ -88,12 +94,14 @@ tools/srt_tool.py validate <file.srt>
 - 检查:序号连续(1..N)、start≤end、时间轴重叠/大间隙(>0.5s 警告)、空文本(警告)。
 - 退出码:`0`=通过;`1`=错误(序号/时间轴非法,必须修正);`2`=警告(空文本必须清零,重叠/间隙按 quality.md 处置)。
 
+<a id="to-txt"></a>
 ### 5.2 to-txt — SRT → 纯文本(每行一条)
 
 ```
 tools/srt_tool.py to-txt <file.srt> <out.txt>
 ```
 
+<a id="from-txt"></a>
 ### 5.3 from-txt — 纯文本 + 源时间轴 → SRT
 
 ```
@@ -102,6 +110,7 @@ tools/srt_tool.py from-txt --source <file.srt> --text <in.txt> --output <out.srt
 
 - 行数与源条数不一致 → FAIL(exit 1)。通用转换工具;03 分块流程请用 compose。
 
+<a id="merge"></a>
 ### 5.4 merge — 合并条目 + 序号重排 + 合并日志(03 源整理必用)
 
 ```
@@ -115,6 +124,7 @@ tools/srt_tool.py merge <file.srt> --from N-M [--from N2-M2 ...] \
 - 退出码:`0`=成功;`1`=范围非法(越界/重叠/乱序)。
 - 输出路径可与输入相同(原地更新)。
 
+<a id="split"></a>
 ### 5.5 split — 拆分为块(03 分块翻译必用)
 
 ```
@@ -124,6 +134,7 @@ tools/srt_tool.py split <file.srt> --out-dir <dir> [--size N]
 - `--size`:每块条数;`0` 或省略 = 单块(全量)。
 - 产物:`block_0001.srt ...`(完整字幕块)+ `manifest.txt`(每行 `block_000N.srt 起-止`,即分块方案中间产物)。
 
+<a id="compose"></a>
 ### 5.6 compose — 块译文拼接生成 SRT(03 拼块必用)
 
 ```
@@ -136,6 +147,7 @@ tools/srt_tool.py compose --source <file.srt> --blocks-dir <dir> \
 - 生成 SRT(时间轴取自 source)与译文纯文本(`--lines`)。
 - 退出码:`0`=成功;`1`=缺块/行数错误/manifest 缺失。
 
+<a id="stats"></a>
 ### 5.7 stats — 统计
 
 ```
@@ -144,6 +156,7 @@ tools/srt_tool.py stats <file.srt>
 
 - 输出:条目数、总时长、文本长度均值/最短/最长。
 
+<a id="burn"></a>
 ## 6. burn.sh — 字幕烧录(05 阶段,可选)
 
 ```
@@ -162,6 +175,7 @@ tools/burn.sh --video <video> --subtitle <subtitle.srt> --output <out.mp4> \
 - 输出已存在 → 自动跳过。
 - 退出码:`0`=成功;`1`=失败(参数/编码器/GPU 强制失败)。
 
+<a id="report"></a>
 ## 7. report.py — 自动生成交付报告(06 阶段必用)
 
 ```

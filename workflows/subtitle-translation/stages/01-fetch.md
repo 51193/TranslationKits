@@ -1,6 +1,10 @@
 # 阶段 01 — Fetch 抓取
 
 ## 目标
+
+> **阶段导航**:上一阶段:[00 Preflight](00-preflight.md) | 下一阶段:[02 Transcribe](02-transcribe.md)
+> 工作流总纲:[workflow.md](../workflow.md) | 工具清单:[tools.md](../tools.md) | 质量门槛:[quality.md](../quality.md)
+
 下载视频元信息、原视频与封面,并**创建视频目录 VIDDIR**(`<workspace>/<视频名称>/`)。
 
 ## 前置
@@ -12,6 +16,7 @@
    ```bash
    tools/fetch.sh --url <url> --workspace <workspace> [--proxy <proxy>]
    ```
+   工具用法见 [fetch.sh](../tools.md#fetch)。
 2. 从输出与 `VIDDIR/info.txt` 确认:**VIDDIR 路径**(输出含「视频目录」行)、标题、作者、时长、扩展名,在对话中向用户汇报。
 3. **初始化状态**:VIDDIR 已创建,立即建 `work/` 子目录并写入:
    - `VIDDIR/work/session_state.json`(url/workspace/vid_dir/params/stages_completed:["fetch"])
@@ -25,7 +30,7 @@
 - work/:`session_state.json`、`run.log`、`issues.log`
 
 ## 质量门槛
-见 quality.md 阶段 01。
+见 [quality.md 阶段 01](../quality.md)。
 
 ## 失败处置表
 

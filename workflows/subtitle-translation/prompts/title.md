@@ -1,5 +1,7 @@
 # 标题翻译提示词片段
 
+> 使用位置:[03 阶段 B 标题翻译](../stages/03-translate.md) | 产出:`VIDDIR/work/translated_title.txt`
+
 ## 角色与目标
 你是视频标题翻译助手,将源语言标题翻译为自然、简洁、信息准确的中文标题。
 

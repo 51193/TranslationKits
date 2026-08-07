@@ -28,15 +28,15 @@
 
 | # | 阶段 | 负责人 | 工具 | 核心产物 | 进入下一阶段条件 |
 |---|------|--------|------|----------|------------------|
-| 00 | Preflight 预检 | agent | `tools/check_env.sh` | 续跑时检查 `VIDDIR/work/session_state.json` | 环境检查通过(exit 0 或 2 且无 FAIL) |
-| 01 | Fetch 抓取 | 工具 | `tools/fetch.sh` | 根:`info.txt` `video.*` `thumbnail.png`;work/:`session_state.json` `run.log` `issues.log` | 文件存在且 info.txt 完整 |
-| 02 | Transcribe 转写 | 工具 | `ffmpeg` + `tools/transcribe.py` | work/:`audio.wav` `subtitle.srt` | `srt_tool.py validate` 无错误 |
-| 03 | Translate 翻译 | agent | `tools/srt_tool.py` | work/:`translated_subtitle.srt`、`blocks/` 及记忆文件 | compose 行数匹配 + validate 无错误 + 自检通过 |
-| 04 | Review 复核 | agent | `tools/srt_tool.py` | work/:`review.log`(全文校对+整体复核) | 校对完成、validate 无错误、复核结论通过 |
-| 05 | Burn 烧录 | 工具 | `tools/burn.sh` | 根:`video.burned.mp4`(仅 burn_enabled=true) | 产物存在;跳过时在 run.log 注明 |
-| 06 | Report 交付 | 工具 | `tools/report.py` | 根:`translation_report.md` | 报告生成且产物清单交给用户 |
+| 00 | [Preflight 预检](stages/00-preflight.md) | agent | [tools.md](tools.md#check-env) | 续跑时检查 `VIDDIR/work/session_state.json` | 环境检查通过(exit 0 或 2 且无 FAIL) |
+| 01 | [Fetch 抓取](stages/01-fetch.md) | 工具 | [tools.md](tools.md#fetch) | 根:`info.txt` `video.*` `thumbnail.png`;work/:`session_state.json` `run.log` `issues.log` | 文件存在且 info.txt 完整 |
+| 02 | [Transcribe 转写](stages/02-transcribe.md) | 工具 | [tools.md](tools.md#transcribe) | work/:`audio.wav` `subtitle.srt` | `srt_tool.py validate` 无错误 |
+| 03 | [Translate 翻译](stages/03-translate.md) | agent | [tools.md](tools.md#merge) | work/:`translated_subtitle.srt`、`blocks/` 及记忆文件 | compose 行数匹配 + validate 无错误 + 自检通过 |
+| 04 | [Review 复核](stages/04-review.md) | agent | [tools.md](tools.md#validate) | work/:`review.log`(全文校对+整体复核) | 校对完成、validate 无错误、复核结论通过 |
+| 05 | [Burn 烧录](stages/05-burn.md) | 工具 | [tools.md](tools.md#burn) | 根:`video.burned.mp4`(仅 burn_enabled=true) | 产物存在;跳过时在 run.log 注明 |
+| 06 | [Report 交付](stages/06-report.md) | 工具 | [tools.md](tools.md#report) | 根:`translation_report.md` | 报告生成且产物清单交给用户 |
 
-> 04 Review 为翻译质量最后关卡:翻译完成后从全片视角做全文校对与整体复核(见 stages/04-review.md);06 Report 为收尾阶段:运行 tools/report.py 自动生成交付报告(见 stages/06-report.md)。
+> 04 Review 为翻译质量最后关卡(见 [04-review.md](stages/04-review.md));06 Report 为收尾阶段(见 [06-report.md](stages/06-report.md))。各阶段前后互为链接。
 
 ## 入参清单(开工时必须确认)
 
@@ -118,13 +118,13 @@
 
 ## 全局行为约束
 
-- 广告内容(口播推广、优惠码、导流链接、三连号召)必须照常翻译,但**不得**写入术语表/元规则/前情提要(见 memory.md 与 prompts/ad-policy.md)。
+- 广告内容(口播推广、优惠码、导流链接、三连号召)必须照常翻译,但**不得**写入术语表/元规则/前情提要(见 [memory.md](memory.md) 与 [ad-policy.md](prompts/ad-policy.md))。
 - 每个 SRT 产物生成后必须立即 `tools/srt_tool.py validate` 验证结构(02 的 `work/subtitle.srt`、03 的 `work/translated_subtitle.srt`)。
 - **禁止自造环节脚本**:合并、拆块、拼块、格式转换、结构检查一律用 `tools/srt_tool.py` 既有子命令;任何"发现工具缺能力"的情况 → 走问题协议反馈建议,不得为流程环节编写一次性脚本(冒烟教训:自造 merge 脚本导致序号位移等连环错误)。文本级小修正(如 03 拼接处标点、04 复核修正译文)直接用 Edit 工具编辑文件,不写脚本。
 - **禁止内联 python 替代工具**:行数守恒(compose/from-txt 自带校验)、结构/空文本检查(validate 覆盖)不得用内联 python 重写;残留英文等语义检查靠通读完成。
 - **Python 执行约定**:需要运行 python 时一律用 `tools/` 脚本(自带 .venv 引导)或 `TranslationKits/.venv/bin/python3`,禁止 sys.path 硬编码 hack。
 - **临时文件约定**:理想状态是**不产生任何临时文件**(所有操作输出直接落盘 VIDDIR/work/)。确需临时文件时,一律放 `/tmp/opencode/<视频名>/`;**阶段结束立即清理**;06 交付时必须向用户反馈本次临时文件使用情况(路径、用途、是否已清理),无临时文件则明说"未使用临时文件"。report.py 会在报告「临时文件」节自动检查该目录残留。
 - **禁止重复内容**:见 AGENTS.md 铁律 4——run.log/issues.log 不重复追加;字幕/译文/记忆/报告不得重复或复制粘贴中间产物内容;发现重复立即清理,并在 06 复核时检查 run.log 无重复 stage 行(有则清理后重跑 06)。
-- 报告与一切可自动化的样板内容(报告、产物清单)由 `tools/` 生成,**AI 不得手写重复样板**;人工观察可追加在报告末尾(见 06 阶段)。
+- 报告与一切可自动化的样板内容(报告、产物清单)由工具生成(见 [tools.md#report](tools.md#report)),**AI 不得手写重复样板**;人工观察可追加在报告末尾(见 [06 阶段](stages/06-report.md))。
 - 大文件下载、装依赖、换模型等动作前先征求用户同意。
 - GPU 设备由 transcribe.py 自动探测选择(见 02 阶段);如转写明显过慢或报 HIP 错误,按 02 失败处置表处理。

@@ -1,7 +1,7 @@
 # 质量门槛 — 每阶段验收标准
 
 > 铁律:产物未过本文件门槛,不得进入下一阶段。校验失败 → 回退修正或走问题协议,不得带着缺陷继续。
-> 产物位置:交付物在 **VIDDIR 根**(源视频/烧录视频/封面/info.txt/报告),中间产物、状态、日志、记忆在 **VIDDIR/work/**;任何产物不得出现在项目文件夹或工作区根(视频目录以外)。
+> 产物位置:交付物在 **VIDDIR 根**(源视频/烧录视频/封面/info.txt/报告),中间产物、状态、日志、记忆在 **VIDDIR/work/**(见 [workflow.md](workflow.md)「三个目录概念」);任何产物不得出现在项目文件夹或工作区根(视频目录以外)。
 
 ## 工具校验(每次 SRT 生成/修改后必须执行)
 
@@ -17,13 +17,13 @@ tools/srt_tool.py validate <file.srt>
 
 | 阶段 | 门槛(全部满足才算通过) |
 |------|--------------------------|
-| 00 Preflight | check_env.sh exit 0 或 2(无 FAIL);work/session_state.json 已初始化,参数已与用户确认 |
-| 01 Fetch | 根:`info.txt` 存在且含原标题/作者/URL/时长/扩展名;`video.*` 存在;work/run.log 记录 ok |
-| 02 Transcribe | work/`subtitle.srt` validate 无错误;work/`audio.wav` 存在 |
-| 03 Translate | work/`translated_subtitle.srt` validate **无错误且无警告(空文本清零)**;行数与源字幕条数一致(由 compose 强制);标题译文存在;记忆文件已按 memory.md 维护;work/`source_merge.log` 与 work/`selfcheck.log` 存在且内容可读;`blocks/` 存在且块译文齐全(compose 校验);自检清单(见下)全部通过 |
-| 04 Review | work/`review.log` 存在且可读,含全文校对修正记录与整体复核结论;复核后 `translated_subtitle.srt` validate 无错误且无警告(空文本清零);修正量克制(>5% 条目需按失败处置表报告) |
-| 05 Burn | 根:`video.burned.mp4` 存在且 ffprobe 可读;或 work/run.log 记录 skipped |
-| 06 Report | `tools/report.py` 已生成根:`translation_report.md`;产物清单齐全;issues.log 中未解决条目已向用户说明;**run.log 无重复 stage 行**(同一 stage/status 只保留一行,重复行已清理);**临时文件使用情况已向用户反馈**(无则明说) |
+| [00 Preflight](stages/00-preflight.md) | check_env.sh exit 0 或 2(无 FAIL);work/session_state.json 已初始化,参数已与用户确认 |
+| [01 Fetch](stages/01-fetch.md) | 根:`info.txt` 存在且含原标题/作者/URL/时长/扩展名;`video.*` 存在;work/run.log 记录 ok |
+| [02 Transcribe](stages/02-transcribe.md) | work/`subtitle.srt` validate 无错误;work/`audio.wav` 存在 |
+| [03 Translate](stages/03-translate.md) | work/`translated_subtitle.srt` validate **无错误且无警告(空文本清零)**;行数与源字幕条数一致(由 compose 强制);标题译文存在;记忆文件已按 [memory.md](memory.md) 维护;work/`source_merge.log` 与 work/`selfcheck.log` 存在且内容可读;`blocks/` 存在且块译文齐全(compose 校验);自检清单(见下)全部通过 |
+| [04 Review](stages/04-review.md) | work/`review.log` 存在且可读,含全文校对修正记录与整体复核结论;复核后 `translated_subtitle.srt` validate 无错误且无警告(空文本清零);修正量克制(>5% 条目需按失败处置表报告) |
+| [05 Burn](stages/05-burn.md) | 根:`video.burned.mp4` 存在且 ffprobe 可读;或 work/run.log 记录 skipped |
+| [06 Report](stages/06-report.md) | 报告工具已生成根:`translation_report.md`(见 [tools.md#report](tools.md#report));产物清单齐全;issues.log 中未解决条目已向用户说明;**run.log 无重复 stage 行**(同一 stage/status 只保留一行,重复行已清理);**临时文件使用情况已向用户反馈**(无则明说) |
 
 ## 翻译自检清单(03 阶段 agent 必须逐项执行)
 
@@ -36,7 +36,7 @@ tools/srt_tool.py validate <file.srt>
 7. **重复自检**:全文终检时确认无相邻重复字幕(语义重复条目)。
 8. **全文终检**:全部块完成后,通读 `translated_subtitle.srt` 一遍,确认无漏译错位;发现块间不一致处回改。
 
-> 说明:旧流程的"规范化"与"校对"独立阶段已并入本阶段(见 workflow.md 设计原则)——源整理发生在翻译前,去重/填空类检查由上述自检完成。
+> 说明:旧流程的"规范化"与"校对"独立阶段已并入本阶段(见 [workflow.md](workflow.md) 设计原则)——源整理发生在翻译前,去重/填空类检查由上述自检完成。
 
 ## 06 阶段(Report):报告由工具生成
 
