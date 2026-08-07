@@ -10,23 +10,23 @@
 
 1. 抽取音频(照抄本命令,不要改写):
    ```bash
-   ffmpeg -y -i VIDDIR/video.<ext> -vn -acodec pcm_s16le -ar 44100 VIDDIR/audio.wav
+   ffmpeg -y -i VIDDIR/video.<ext> -vn -acodec pcm_s16le -ar 44100 VIDDIR/work/audio.wav
    ```
 2. 转写(语言/模型取 params;设备自动探测,见下):
    ```bash
-   tools/transcribe.py VIDDIR/audio.wav --output VIDDIR/subtitle.srt \
+   tools/transcribe.py VIDDIR/work/audio.wav --output VIDDIR/work/subtitle.srt \
      --model <whisper_model> --language <language> [--device auto]
    ```
    - **GPU 自动探测**:脚本会逐个尝试可用 GPU(小矩阵试跑),自动跳过不可用设备(如驱动不兼容的独显),全不可用则 CPU。无需手动指定;转写日志会打印"使用 GPU[N] / 回退 CPU"。
    - 输出已存在且较新会自动跳过。
 3. 结构校验:
    ```bash
-   tools/srt_tool.py validate VIDDIR/subtitle.srt
+   tools/srt_tool.py validate VIDDIR/work/subtitle.srt
    ```
-4. 更新 `session_state.json` + `run.log`。
+4. 更新 `VIDDIR/work/session_state.json` + `VIDDIR/work/run.log`。
 
 ## 产物(VIDDIR 内)
-- `audio.wav`、`subtitle.srt`
+- work/:`audio.wav`、`subtitle.srt`
 
 ## 质量门槛
 见 quality.md 阶段 02(validate 无错误)。

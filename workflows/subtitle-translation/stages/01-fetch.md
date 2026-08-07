@@ -13,17 +13,15 @@
    tools/fetch.sh --url <url> --workspace <workspace> [--proxy <proxy>]
    ```
 2. 从输出与 `VIDDIR/info.txt` 确认:**VIDDIR 路径**(输出含「视频目录」行)、标题、作者、时长、扩展名,在对话中向用户汇报。
-3. **初始化状态**:VIDDIR 已创建,立即写入:
-   - `VIDDIR/session_state.json`(url/workspace/vid_dir/params/stages_completed:["fetch"])
-   - `VIDDIR/run.log` 首行
-4. 若工作区根存在旧 `issues.log`(00 阶段例外记录),把内容并入 `VIDDIR/issues.log` 后删除根级文件。
-5. 更新 `session_state.json`(stages_completed 追加 fetch)+ `run.log`。
+3. **初始化状态**:VIDDIR 已创建,立即建 `work/` 子目录并写入:
+   - `VIDDIR/work/session_state.json`(url/workspace/vid_dir/params/stages_completed:["fetch"])
+   - `VIDDIR/work/run.log` 首行
+4. 若工作区根存在旧 `issues.log`(00 阶段例外记录),把内容并入 `VIDDIR/work/issues.log` 后删除根级文件。
+5. 更新 `VIDDIR/work/session_state.json`(stages_completed 追加 fetch)+ `VIDDIR/work/run.log`。
 
-## 产物(全部在 VIDDIR 内)
-- `info.txt`(原标题/作者/URL/上传日期/时长/扩展名/**视频目录**)
-- `video.<ext>`(已存在则自动跳过)
-- `thumbnail.png`(可选,缺失仅警告)
-- `session_state.json`、`run.log`、`issues.log`
+## 产物(交付物在 VIDDIR 根,状态文件在 work/)
+- 根:`info.txt`(原标题/作者/URL/上传日期/时长/扩展名/**视频目录**)、`video.<ext>`(已存在则自动跳过)、`thumbnail.png`(可选,缺失仅警告)
+- work/:`session_state.json`、`run.log`、`issues.log`
 
 ## 质量门槛
 见 quality.md 阶段 01。

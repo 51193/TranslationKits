@@ -30,7 +30,7 @@
 
 **必须执行的四步**:
 
-1. **记录**:在 `VIDDIR/issues.log` 追加一条,格式:
+1. **记录**:在 `VIDDIR/work/issues.log` 追加一条,格式:
    ```
    [2026-08-06T20:00:00Z] stage=<阶段名> tool=<工具名/命令> error=<错误摘要> attempt=<你尝试了什么> resolution=<用户决定或建议的流程改进>
    ```

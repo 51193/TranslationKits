@@ -4,46 +4,46 @@
 把源字幕逐句翻译为中文,并维护四个记忆文件,产出 `translated_subtitle.srt`。**全部产物与记忆文件在 VIDDIR 内**。
 
 本阶段合并了旧流程的"规范化"与"校对"两个独立阶段(理由见 workflow.md 设计原则):
-- **源整理子步骤**承担旧"规范化"的职责(合并语法断裂碎片),直接编辑 `subtitle.srt` 本体,不产生副本。
+- **源整理子步骤**承担旧"规范化"的职责(合并语法断裂碎片),直接编辑 `VIDDIR/work/subtitle.srt` 本体,不产生副本。
 - **自检清单**承担旧"校对"的职责(空文本清零、无重复),在翻译完成后统一执行。
 
 ## 前置
-- 02 通过;`VIDDIR/subtitle.srt` 存在。
+- 02 通过;`VIDDIR/work/subtitle.srt` 存在。
 - 已与用户确认 `domain_hint`(可为空)。
 
 ## 步骤
 
 ### A. 源整理(旧"规范化")
-1. 通读 `VIDDIR/subtitle.srt` 全部条目,按 prompts/normalize.md 判定合并:
+1. 通读 `VIDDIR/work/subtitle.srt` 全部条目,按 prompts/normalize.md 判定合并:
    - 默认不合并;只有语法/句法被明显错误切断时才合并。
    - 合并 = 取前条 start、后条 end,文本拼接为一句,序号重排。
-2. 直接编辑 `VIDDIR/subtitle.srt` 实施合并(不产生 normalized 副本)。
-3. 校验: `tools/srt_tool.py validate VIDDIR/subtitle.srt`。
+2. 直接编辑 `VIDDIR/work/subtitle.srt` 实施合并(不产生 normalized 副本)。
+3. 校验: `tools/srt_tool.py validate VIDDIR/work/subtitle.srt`。
 4. 自检:合并量克制(>30% 条目停止并走问题协议);合并后逐条确认语义未破坏。
 
 ### B. 标题翻译
-按 prompts/title.md 翻译,写入 `VIDDIR/translated_title.txt`(已存在则跳过)。
+按 prompts/title.md 翻译,写入 `VIDDIR/work/translated_title.txt`(已存在则跳过)。
 
 ### C. 分块翻译
 按 prompts/translate-module.md 逐块执行:
 1. 读 VIDDIR 内四个记忆文件(不存在视为"尚无")。
 2. 块大小自定:短视频一次全量,长视频 20~40 句/块;上一块译完、记忆更新后再译下一块。
 3. 每块:注入记忆文件与上文译文 → 请求模型输出 JSON → 校验行数 → 提取译文 → 按 memory.md 更新记忆文件。
-4. 译文逐行写入 `VIDDIR/translated_lines.txt`(整文件重写,行号与源字幕一一对应)。
+4. 译文逐行写入 `VIDDIR/work/translated_lines.txt`(整文件重写,行号与源字幕一一对应)。
 
 ### D. 生成字幕
 ```bash
-tools/srt_tool.py from-txt --source VIDDIR/subtitle.srt \
-  --text VIDDIR/translated_lines.txt --output VIDDIR/translated_subtitle.srt
+tools/srt_tool.py from-txt --source VIDDIR/work/subtitle.srt \
+  --text VIDDIR/work/translated_lines.txt --output VIDDIR/work/translated_subtitle.srt
 ```
 行数不匹配会失败——失败即本块翻译不守恒,回改译文后重跑。
 
 ### E. 校验与自检
-1. `tools/srt_tool.py validate VIDDIR/translated_subtitle.srt`(必须 exit 0,空文本 WARN 清零)。
+1. `tools/srt_tool.py validate VIDDIR/work/translated_subtitle.srt`(必须 exit 0,空文本 WARN 清零)。
 2. 执行 quality.md「翻译自检清单」全部 8 项(源整理复核、逐块复查、术语一致性、广告检查、行数守恒、空文本清零、重复自检、全文终检)。
-3. 更新 `session_state.json` + `run.log`。
+3. 更新 `VIDDIR/work/session_state.json` + `VIDDIR/work/run.log`。
 
-## 产物(全部在 VIDDIR 内)
+## 产物(全部在 VIDDIR/work/ 内)
 - `translated_title.txt`、`translated_lines.txt`、`translated_subtitle.srt`(最终交付字幕)
 - 四个记忆文件(如内容有更新)
 

@@ -1,7 +1,7 @@
 # 质量门槛 — 每阶段验收标准
 
 > 铁律:产物未过本文件门槛,不得进入下一阶段。校验失败 → 回退修正或走问题协议,不得带着缺陷继续。
-> 产物位置:所有中间产物与交付物均在 **VIDDIR**(`<workspace>/<视频名称>/`,见 workflow.md「三个目录概念」)内;任何产物不得出现在项目文件夹或工作区根(视频目录以外)。
+> 产物位置:交付物在 **VIDDIR 根**(源视频/烧录视频/封面/info.txt/报告),中间产物、状态、日志、记忆在 **VIDDIR/work/**;任何产物不得出现在项目文件夹或工作区根(视频目录以外)。
 
 ## 工具校验(每次 SRT 生成/修改后必须执行)
 
@@ -17,12 +17,12 @@ tools/srt_tool.py validate <file.srt>
 
 | 阶段 | 门槛(全部满足才算通过) |
 |------|--------------------------|
-| 00 Preflight | check_env.sh exit 0 或 2(无 FAIL);session_state.json 已初始化,参数已与用户确认 |
-| 01 Fetch | `VIDDIR/info.txt` 存在且含原标题/作者/URL/时长/扩展名;`VIDDIR/video.*` 存在;run.log 记录 ok |
-| 02 Transcribe | `subtitle.srt` validate 无错误;`audio.wav` 存在 |
-| 03 Translate | `translated_subtitle.srt` validate **无错误且无警告(空文本清零)**;行数与源字幕条数一致(由 from-txt 强制);标题译文存在;记忆文件已按 memory.md 维护;自检清单(见下)全部通过 |
-| 04 Burn | `video.burned.mp4` 存在且 ffprobe 可读;或 run.log 记录 skipped |
-| 05 Report | 产物清单齐全;translation_report.md 已写;issues.log 中未解决条目已向用户说明 |
+| 00 Preflight | check_env.sh exit 0 或 2(无 FAIL);work/session_state.json 已初始化,参数已与用户确认 |
+| 01 Fetch | 根:`info.txt` 存在且含原标题/作者/URL/时长/扩展名;`video.*` 存在;work/run.log 记录 ok |
+| 02 Transcribe | work/`subtitle.srt` validate 无错误;work/`audio.wav` 存在 |
+| 03 Translate | work/`translated_subtitle.srt` validate **无错误且无警告(空文本清零)**;行数与源字幕条数一致(由 from-txt 强制);标题译文存在;记忆文件已按 memory.md 维护;自检清单(见下)全部通过 |
+| 04 Burn | 根:`video.burned.mp4` 存在且 ffprobe 可读;或 work/run.log 记录 skipped |
+| 05 Report | `tools/report.py` 已生成根:`translation_report.md`;产物清单齐全;issues.log 中未解决条目已向用户说明 |
 
 ## 翻译自检清单(03 阶段 agent 必须逐项执行)
 
@@ -37,14 +37,21 @@ tools/srt_tool.py validate <file.srt>
 
 > 说明:旧流程的"规范化"与"校对"独立阶段已并入本阶段(见 workflow.md 设计原则)——源整理发生在翻译前,去重/填空类检查由上述自检完成。
 
-## 交付清单(05 阶段向用户交付,文件均在 VIDDIR 内)
+## 05 阶段(Report):报告由工具生成
 
-1. `translated_subtitle.srt`(最终字幕)
-2. `translated_title.txt` + `info.txt`
-3. 记忆文件:`term_consistency_table.txt` / `meta_translation_rules.txt` / `synopsis_memory.txt` / `ad_memory.txt`
-4. `translation_report.md`(参数、各阶段产物路径、记忆文件摘要、已知问题)
-5. 若烧录: `video.burned.mp4`
-6. 提示用户:审阅记忆文件与最终字幕;如有问题可要求局部重译。
+- 运行:`tools/report.py --vid-dir VIDDIR --output VIDDIR/translation_report.md`。
+- 报告样板(任务参数/视频信息/交付物与中间产物清单/记忆摘要/运行流水/已知问题/交付清单)全部由工具从状态文件生成。
+- **AI 不得手写重复样板**;如需补充人工观察(如翻译质量抽查结论),只允许在报告末尾「agent 补充说明」小节追加。
+- 生成后核对:报告内容与 VIDDIR 实际状态一致(工具以文件系统为准,无需人工修正)。
+
+## 交付清单(05 阶段向用户交付)
+
+| 位置 | 文件 |
+|------|------|
+| VIDDIR 根 | `video.<ext>`(源视频)、`video.burned.mp4`(若烧录)、`thumbnail.png`、`info.txt`、`translation_report.md` |
+| VIDDIR/work | `translated_subtitle.srt`(最终字幕)、`translated_title.txt`、记忆文件 4 个(`term_consistency_table.txt` / `meta_translation_rules.txt` / `synopsis_memory.txt` / `ad_memory.txt`) |
+
+交付时向用户说明:根层是交付物;work/ 是过程文件(重跑/续跑/审阅用)。提示审阅记忆文件与最终字幕,如有问题可要求局部重译。
 
 ## 成本与效率建议(非强制)
 

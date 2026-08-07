@@ -9,12 +9,12 @@
 
 ## 步骤
 
-1. 确认最终字幕为 `VIDDIR/translated_subtitle.srt`(唯一交付字幕,无校对版)。
+1. 确认最终字幕为 `VIDDIR/work/translated_subtitle.srt`(唯一交付字幕,无校对版)。
 2. **核对 GPU 决定**(session_state.json 的 params.gpu):gpu=cpu → 用 `--gpu cpu`;gpu=auto/未记录 → 按 AGENTS.md「GPU 询问协议」先询问用户是否要 GPU 编码,再执行。
 3. 执行烧录:
    ```bash
    tools/burn.sh --video VIDDIR/video.<ext> \
-     --subtitle VIDDIR/translated_subtitle.srt \
+     --subtitle VIDDIR/work/translated_subtitle.srt \
      --output VIDDIR/video.burned.mp4 [--gpu auto|cpu|vaapi]
    ```
    - `--gpu auto`(默认):检测到 vaapi 硬件编码器则用 GPU,否则回退 CPU 并打印 WARN——**此时停下询问用户**是否接受 CPU 烧录。
@@ -25,10 +25,10 @@
    ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 VIDDIR/video.burned.mp4
    ```
    时长应与原视频一致(±2 秒);不一致 → 记录并告知用户。
-5. 更新 `session_state.json`(stages_completed 追加 burn)+ `run.log`。
+5. 更新 `VIDDIR/work/session_state.json`(stages_completed 追加 burn)+ `VIDDIR/work/run.log`。
 
-## 产物(VIDDIR 内)
-- `video.burned.mp4`(已存在则自动跳过)
+## 产物(交付物在 VIDDIR 根)
+- `video.burned.mp4`(已存在则自动跳过;字幕源为 VIDDIR/work/translated_subtitle.srt)
 
 ## 质量门槛
 见 quality.md 阶段 04。

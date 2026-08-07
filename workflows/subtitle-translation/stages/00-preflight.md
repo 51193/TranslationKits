@@ -12,9 +12,9 @@
 
 1. **确认入参**:把入参清单(workflow.md 表格)向用户核对。缺省值直接采用并说明:`language=en`、`whisper_model=turbo`、`burn_enabled=false`。URL 或工作区缺失 → 停下询问,不得编造。
 2. **确定 VIDDIR**:列出 `<workspace>` 的直接子目录:
-   - 含 `session_state.json` 者 = 本视频目录;有多个则向用户确认选哪个。
+   - 其 `work/session_state.json` 存在者 = 本视频目录;有多个则向用户确认选哪个。
    - 无 → 新任务:VIDDIR 尚未创建,由 01 fetch 阶段创建;此阶段不落盘。
-3. **读续跑状态**:VIDDIR 已存在则读 `session_state.json`,按 workflow.md「续跑规则」决定跳过哪些阶段;同时读 `VIDDIR/issues.log`,有未解决条目先向用户说明。
+3. **读续跑状态**:VIDDIR 已存在则读 `VIDDIR/work/session_state.json`,按 workflow.md「续跑规则」决定跳过哪些阶段;同时读 `VIDDIR/work/issues.log`,有未解决条目先向用户说明。
 4. **环境预检**(注意:`--workspace` 传**工作区根**,不是 VIDDIR;视频目录此时可能还不存在,磁盘与可写性检查针对根目录即可):
    ```bash
    tools/check_env.sh --workspace <workspace> --url <url> [--proxy <proxy>]
