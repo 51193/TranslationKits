@@ -17,9 +17,10 @@
 1. 通读 `VIDDIR/work/subtitle.srt` 全部条目,按 prompts/normalize.md 判定合并:
    - 默认不合并;只有语法/句法被明显错误切断时才合并。
    - 合并 = 取前条 start、后条 end,文本拼接为一句,序号重排。
-2. 直接编辑 `VIDDIR/work/subtitle.srt` 实施合并(不产生 normalized 副本)。
-3. 校验: `tools/srt_tool.py validate VIDDIR/work/subtitle.srt`。
-4. 自检:合并量克制(>30% 条目停止并走问题协议);合并后逐条确认语义未破坏。
+2. **合并记录落盘**:每次合并,在 `VIDDIR/work/source_merge.log` 追加一行(格式:`原句号范围 => 合并后文本`,与 prompts/normalize.md 的合并建议表一致);无合并则写入一行"无合并"。
+3. 直接编辑 `VIDDIR/work/subtitle.srt` 实施合并(不产生 normalized 副本)。
+4. 校验: `tools/srt_tool.py validate VIDDIR/work/subtitle.srt`。
+5. 自检:合并量克制(>30% 条目停止并走问题协议);合并后逐条确认语义未破坏。
 
 ### B. 标题翻译
 按 prompts/title.md 翻译,写入 `VIDDIR/work/translated_title.txt`(已存在则跳过)。
@@ -41,10 +42,12 @@ tools/srt_tool.py from-txt --source VIDDIR/work/subtitle.srt \
 ### E. 校验与自检
 1. `tools/srt_tool.py validate VIDDIR/work/translated_subtitle.srt`(必须 exit 0,空文本 WARN 清零)。
 2. 执行 quality.md「翻译自检清单」全部 8 项(源整理复核、逐块复查、术语一致性、广告检查、行数守恒、空文本清零、重复自检、全文终检)。
-3. 更新 `VIDDIR/work/session_state.json` + `VIDDIR/work/run.log`。
+3. **自检结果落盘**:把 8 项结果逐项写入 `VIDDIR/work/selfcheck.log`(每行 `[UTC时间] N. 项目名: 通过/失败(说明)`;发现问题并修复的,记录修复动作)。
+4. 更新 `VIDDIR/work/session_state.json` + `VIDDIR/work/run.log`。
 
 ## 产物(全部在 VIDDIR/work/ 内)
 - `translated_title.txt`、`translated_lines.txt`、`translated_subtitle.srt`(最终交付字幕)
+- `source_merge.log`(源整理合并记录)、`selfcheck.log`(自检记录)
 - 四个记忆文件(如内容有更新)
 
 ## 质量门槛

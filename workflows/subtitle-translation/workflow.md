@@ -64,11 +64,14 @@
         ├── session_state.json        # 阶段状态与参数(续跑依据,每次阶段完成必须更新)
         ├── issues.log                # 问题记录(问题协议专用)
         ├── run.log                   # 阶段执行流水(时间/阶段/结果)
+        ├── preflight.log             # 00:check_env.sh 完整输出(环境预检结果)
         ├── audio.wav                 # 音频(ffmpeg 抽取;空间紧张可删,重转写时重新抽取)
         ├── subtitle.srt              # whisper 转写字幕(03 源整理时直接编辑本文件)
+        ├── source_merge.log          # 03:源整理合并记录(每条一行:原句号范围 => 合并后文本)
         ├── translated_title.txt      # 标题译文
         ├── translated_lines.txt      # 中文译文逐行(from-txt 输入;行数守恒防线,保留)
         ├── translated_subtitle.srt   # 中文字幕(from-txt 生成;最终交付字幕)
+        ├── selfcheck.log             # 03:翻译自检记录(自检清单 8 项逐项结果)
         ├── term_consistency_table.txt    # 术语一致性表(记忆)
         ├── meta_translation_rules.txt    # 元翻译规则(记忆)
         ├── synopsis_memory.txt           # 前情提要(记忆)
@@ -76,6 +79,13 @@
 ```
 
 > 交付物 = 用户最终需要的东西,直接放在 VIDDIR 根;中间产物/状态/日志/记忆 = 过程文件,统一在 `work/`。交付清单见 quality.md。
+
+## 操作输出落盘原则(一切输出都是中间产物)
+
+- **任何会产生后续复用价值的操作输出,都必须写入 `VIDDIR/work/` 下的中间产物文件**:环境预检结果(preflight.log)、合并记录(source_merge.log)、自检结果(selfcheck.log)、问题记录(issues.log)、记忆文件(4 个)、状态(session_state.json)、流水(run.log)。
+- **后续阶段只能从文件复用内容,不得从对话中复述**;对话仅用于进度说明与向用户提问。
+- **AI 不得把已落盘的内容重复写进另一个文件或对话**(如报告正文中复述记忆内容——由 report.py 直接读取)。
+- 判断标准:该输出是否会被后续阶段/续跑/审阅再次引用?是 → 必须落盘。
 
 ## session_state.json 约定
 

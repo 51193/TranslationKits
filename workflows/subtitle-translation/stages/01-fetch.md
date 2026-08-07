@@ -16,6 +16,7 @@
 3. **初始化状态**:VIDDIR 已创建,立即建 `work/` 子目录并写入:
    - `VIDDIR/work/session_state.json`(url/workspace/vid_dir/params/stages_completed:["fetch"])
    - `VIDDIR/work/run.log` 首行
+   - 若 00 阶段预检在 VIDDIR 创建前执行(preflight.log 未落盘),把预检结果摘要补写入 `VIDDIR/work/preflight.log`(至少含 exit code 与 GPU/URL 状态)
 4. 若工作区根存在旧 `issues.log`(00 阶段例外记录),把内容并入 `VIDDIR/work/issues.log` 后删除根级文件。
 5. 更新 `VIDDIR/work/session_state.json`(stages_completed 追加 fetch)+ `VIDDIR/work/run.log`。
 

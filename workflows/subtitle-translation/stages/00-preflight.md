@@ -15,9 +15,9 @@
    - 其 `work/session_state.json` 存在者 = 本视频目录;有多个则向用户确认选哪个。
    - 无 → 新任务:VIDDIR 尚未创建,由 01 fetch 阶段创建;此阶段不落盘。
 3. **读续跑状态**:VIDDIR 已存在则读 `VIDDIR/work/session_state.json`,按 workflow.md「续跑规则」决定跳过哪些阶段;同时读 `VIDDIR/work/issues.log`,有未解决条目先向用户说明。
-4. **环境预检**(注意:`--workspace` 传**工作区根**,不是 VIDDIR;视频目录此时可能还不存在,磁盘与可写性检查针对根目录即可):
+4. **环境预检**(注意:`--workspace` 传**工作区根**,不是 VIDDIR;视频目录此时可能还不存在,磁盘与可写性检查针对根目录即可)。**输出必须落盘**:视频目录已存在则 `tee` 到 `VIDDIR/work/preflight.log`;尚未创建则只用于对话与决策,并在 01 创建后补记一行摘要:
    ```bash
-   tools/check_env.sh --workspace <workspace> --url <url> [--proxy <proxy>]
+   tools/check_env.sh --workspace <workspace> --url <url> [--proxy <proxy>] | tee VIDDIR/work/preflight.log
    ```
    - exit 0 → 通过。
    - exit 2 → 有警告,向用户简述警告内容后继续。

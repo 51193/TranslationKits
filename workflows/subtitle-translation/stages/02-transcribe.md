@@ -23,7 +23,7 @@
    ```bash
    tools/srt_tool.py validate VIDDIR/work/subtitle.srt
    ```
-4. 更新 `VIDDIR/work/session_state.json` + `VIDDIR/work/run.log`。
+4. 更新 `VIDDIR/work/session_state.json` + `VIDDIR/work/run.log`(run.log 注明转写所用设备:`GPU[N] <名称>` 或 `CPU`)。
 
 ## 产物(VIDDIR 内)
 - work/:`audio.wav`、`subtitle.srt`

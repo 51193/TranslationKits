@@ -16,6 +16,7 @@
 ## 执行方式(agent)
 - 通读 `VIDDIR/work/subtitle.srt` 全部条目,逐对扫描相邻句。
 - 给出合并建议表:每行 `原句号范围 => 合并后文本`。
+- **合并记录落盘**:每次合并,把对应行追加写入 `VIDDIR/work/source_merge.log`(格式与建议表一致,追加一行;无合并时写入一行"无合并")。
 - 在 `VIDDIR/work/subtitle.srt` 上直接实施合并(取前条 start、后条 end,文本拼接为一句,序号重排),不产生副本文件。
 - 合并后立即 `tools/srt_tool.py validate VIDDIR/work/subtitle.srt`。
 - 合并量应克制;若合并建议超过 30% 条目,停止并走问题协议——可能源转写断句过碎,需告知用户(可建议换 whisper 模型重转写)。

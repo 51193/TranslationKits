@@ -20,7 +20,7 @@ tools/srt_tool.py validate <file.srt>
 | 00 Preflight | check_env.sh exit 0 或 2(无 FAIL);work/session_state.json 已初始化,参数已与用户确认 |
 | 01 Fetch | 根:`info.txt` 存在且含原标题/作者/URL/时长/扩展名;`video.*` 存在;work/run.log 记录 ok |
 | 02 Transcribe | work/`subtitle.srt` validate 无错误;work/`audio.wav` 存在 |
-| 03 Translate | work/`translated_subtitle.srt` validate **无错误且无警告(空文本清零)**;行数与源字幕条数一致(由 from-txt 强制);标题译文存在;记忆文件已按 memory.md 维护;自检清单(见下)全部通过 |
+| 03 Translate | work/`translated_subtitle.srt` validate **无错误且无警告(空文本清零)**;行数与源字幕条数一致(由 from-txt 强制);标题译文存在;记忆文件已按 memory.md 维护;work/`source_merge.log` 与 work/`selfcheck.log` 存在且内容可读;自检清单(见下)全部通过 |
 | 04 Burn | 根:`video.burned.mp4` 存在且 ffprobe 可读;或 work/run.log 记录 skipped |
 | 05 Report | `tools/report.py` 已生成根:`translation_report.md`;产物清单齐全;issues.log 中未解决条目已向用户说明 |
 

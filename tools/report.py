@@ -98,9 +98,10 @@ def gen_report(vid_dir):
     a("## 中间产物与状态(VIDDIR/work)")
     a("")
     work_files = [
-        "subtitle.srt", "translated_title.txt", "translated_lines.txt", "translated_subtitle.srt",
+        "subtitle.srt", "source_merge.log", "translated_title.txt", "translated_lines.txt",
+        "translated_subtitle.srt", "selfcheck.log",
         "term_consistency_table.txt", "meta_translation_rules.txt", "synopsis_memory.txt", "ad_memory.txt",
-        "audio.wav", "session_state.json", "run.log", "issues.log",
+        "audio.wav", "preflight.log", "session_state.json", "run.log", "issues.log",
     ]
     rows = []
     for f in work_files:
@@ -112,6 +113,25 @@ def gen_report(vid_dir):
             rows.append(f"- {f}: ✗ (缺失)")
     a("\n".join(rows) if rows else "- (work/ 目录缺失)")
     a("")
+
+    # 4. 过程记录(直接复用中间产物,不重复叙述)
+    a("## 过程记录(直接复用中间产物)")
+    a("")
+    for f, label in [
+        ("preflight.log", "环境预检 (preflight.log)"),
+        ("source_merge.log", "源整理合并记录 (source_merge.log)"),
+        ("selfcheck.log", "翻译自检记录 (selfcheck.log)"),
+    ]:
+        txt = read_text(os.path.join(work, f))
+        a(f"### {label}")
+        a("")
+        if txt and txt.strip():
+            a("```")
+            a(txt.strip())
+            a("```")
+        else:
+            a("- (缺失或为空)")
+        a("")
 
     # 4. 记忆文件摘要
     a("## 记忆文件摘要")
