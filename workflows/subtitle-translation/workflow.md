@@ -30,10 +30,11 @@
 | 01 | Fetch 抓取 | 工具 | `tools/fetch.sh` | 根:`info.txt` `video.*` `thumbnail.png`;work/:`session_state.json` `run.log` `issues.log` | 文件存在且 info.txt 完整 |
 | 02 | Transcribe 转写 | 工具 | `ffmpeg` + `tools/transcribe.py` | work/:`audio.wav` `subtitle.srt` | `srt_tool.py validate` 无错误 |
 | 03 | Translate 翻译 | agent | `tools/srt_tool.py` | work/:`translated_subtitle.srt` 及记忆文件 | from-txt 行数匹配 + validate 无错误 + 自检通过 |
-| 04 | Burn 烧录 | 工具 | `tools/burn.sh` | 根:`video.burned.mp4`(仅 burn_enabled=true) | 产物存在;跳过时在 run.log 注明 |
-| 05 | Report 交付 | 工具 | `tools/report.py` | 根:`translation_report.md` | 报告生成且产物清单交给用户 |
+| 04 | Review 复核 | agent | `tools/srt_tool.py` | work/:`review.log`(全文校对+整体复核) | 校对完成、validate 无错误、复核结论通过 |
+| 05 | Burn 烧录 | 工具 | `tools/burn.sh` | 根:`video.burned.mp4`(仅 burn_enabled=true) | 产物存在;跳过时在 run.log 注明 |
+| 06 | Report 交付 | 工具 | `tools/report.py` | 根:`translation_report.md` | 报告生成且产物清单交给用户 |
 
-> 05 Report 为收尾阶段:运行 tools/report.py 自动生成交付报告,向用户交付清单(见 stages/05-report.md 与 quality.md「交付清单」)。
+> 04 Review 为翻译质量最后关卡:翻译完成后从全片视角做全文校对与整体复核(见 stages/04-review.md);06 Report 为收尾阶段:运行 tools/report.py 自动生成交付报告(见 stages/06-report.md)。
 
 ## 入参清单(开工时必须确认)
 
@@ -70,8 +71,9 @@
         ├── source_merge.log          # 03:源整理合并记录(每条一行:原句号范围 => 合并后文本)
         ├── translated_title.txt      # 标题译文
         ├── translated_lines.txt      # 中文译文逐行(from-txt 输入;行数守恒防线,保留)
-        ├── translated_subtitle.srt   # 中文字幕(from-txt 生成;最终交付字幕)
+        ├── translated_subtitle.srt   # 中文字幕(from-txt 生成;04 复核修正后为最终交付字幕)
         ├── selfcheck.log             # 03:翻译自检记录(自检清单 8 项逐项结果)
+        ├── review.log                # 04:复核记录(全文校对修正 + 整体复核结论)
         ├── term_consistency_table.txt    # 术语一致性表(记忆)
         ├── meta_translation_rules.txt    # 元翻译规则(记忆)
         ├── synopsis_memory.txt           # 前情提要(记忆)
@@ -82,7 +84,7 @@
 
 ## 操作输出落盘原则(一切输出都是中间产物)
 
-- **任何会产生后续复用价值的操作输出,都必须写入 `VIDDIR/work/` 下的中间产物文件**:环境预检结果(preflight.log)、合并记录(source_merge.log)、自检结果(selfcheck.log)、问题记录(issues.log)、记忆文件(4 个)、状态(session_state.json)、流水(run.log)。
+- **任何会产生后续复用价值的操作输出,都必须写入 `VIDDIR/work/` 下的中间产物文件**:环境预检结果(preflight.log)、合并记录(source_merge.log)、自检结果(selfcheck.log)、复核记录(review.log)、问题记录(issues.log)、记忆文件(4 个)、状态(session_state.json)、流水(run.log)。
 - **后续阶段只能从文件复用内容,不得从对话中复述**;对话仅用于进度说明与向用户提问。
 - **AI 不得把已落盘的内容重复写进另一个文件或对话**(如报告正文中复述记忆内容——由 report.py 直接读取)。
 - 判断标准:该输出是否会被后续阶段/续跑/审阅再次引用?是 → 必须落盘。
@@ -95,7 +97,7 @@
   "workspace": "/abs/path",
   "vid_dir": "/abs/path/<视频名称>",
   "params": { "language": "en", "whisper_model": "turbo", "proxy": null, "domain_hint": "", "gpu": "auto", "burn_enabled": false },
-  "stages_completed": ["preflight", "fetch", "transcribe", "translate", "burn", "report"]
+  "stages_completed": ["preflight", "fetch", "transcribe", "translate", "review", "burn", "report"]
 }
 ```
 

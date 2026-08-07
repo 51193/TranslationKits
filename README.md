@@ -22,7 +22,7 @@ tools/check_env.sh --url <URL> --workspace <WS_DIR>
 opencode "翻译 https://www.youtube.com/watch?v=xxx 到 <你的工作区>/Translates/xxx"
 ```
 
-agent 会:确认入参 → 环境预检 → 抓取 → 转写 → 翻译(含源整理)→ 烧录(可选)→ 交付报告。全程产物在工作区,支持断点续跑。
+agent 会:确认入参 → 环境预检 → 抓取 → 转写 → 翻译(含源整理)→ 复核(全文校对+整体复核)→ 烧录(可选)→ 交付报告。全程产物在工作区,支持断点续跑。
 
 > 流程为旧版代码流水线的"倒置"实现:不再设独立的规范化/校对阶段(由翻译阶段内的源整理与自检承担),中间产物精简为最小集合(见 workflows/subtitle-translation/workflow.md 设计原则)。
 
@@ -40,7 +40,7 @@ agent 会:确认入参 → 环境预检 → 抓取 → 转写 → 翻译(含源�
 ├── AGENTS.md                     # agent 入口:角色、铁律、问题协议
 ├── workflows/subtitle-translation/
 │   ├── workflow.md               # 流程总纲:阶段总览、入参清单、目录分层、产物命名
-│   ├── stages/00~05/             # 各阶段操作手册(含失败处置表)
+│   ├── stages/00~06/             # 各阶段操作手册(含失败处置表)
 │   ├── memory.md                 # 记忆文件约定(术语表/元规则/前情提要/广告)
 │   ├── quality.md                # 质量门槛、自检清单、交付清单
 │   └── prompts/                  # 可复用提示词片段

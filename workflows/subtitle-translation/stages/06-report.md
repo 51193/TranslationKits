@@ -1,10 +1,10 @@
-# 阶段 05 — Report 交付
+# 阶段 06 — Report 交付
 
 ## 目标
 自动生成交付报告 `translation_report.md`,向用户交付全部产物。
 
 ## 前置
-- 03 通过(04 可选);`VIDDIR/work/` 内状态文件齐全。
+- 05 通过(04 复核必过);`VIDDIR/work/` 内状态文件齐全。
 
 ## 步骤
 
@@ -22,7 +22,7 @@
 - 根:`translation_report.md`(自动生成)
 
 ## 质量门槛
-见 quality.md 阶段 05。
+见 quality.md 阶段 06。
 
 ## 失败处置表
 

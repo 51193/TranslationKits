@@ -21,8 +21,9 @@ tools/srt_tool.py validate <file.srt>
 | 01 Fetch | 根:`info.txt` 存在且含原标题/作者/URL/时长/扩展名;`video.*` 存在;work/run.log 记录 ok |
 | 02 Transcribe | work/`subtitle.srt` validate 无错误;work/`audio.wav` 存在 |
 | 03 Translate | work/`translated_subtitle.srt` validate **无错误且无警告(空文本清零)**;行数与源字幕条数一致(由 from-txt 强制);标题译文存在;记忆文件已按 memory.md 维护;work/`source_merge.log` 与 work/`selfcheck.log` 存在且内容可读;自检清单(见下)全部通过 |
-| 04 Burn | 根:`video.burned.mp4` 存在且 ffprobe 可读;或 work/run.log 记录 skipped |
-| 05 Report | `tools/report.py` 已生成根:`translation_report.md`;产物清单齐全;issues.log 中未解决条目已向用户说明 |
+| 04 Review | work/`review.log` 存在且可读,含全文校对修正记录与整体复核结论;复核后 `translated_subtitle.srt` validate 无错误且无警告(空文本清零);修正量克制(>5% 条目需按失败处置表报告) |
+| 05 Burn | 根:`video.burned.mp4` 存在且 ffprobe 可读;或 work/run.log 记录 skipped |
+| 06 Report | `tools/report.py` 已生成根:`translation_report.md`;产物清单齐全;issues.log 中未解决条目已向用户说明 |
 
 ## 翻译自检清单(03 阶段 agent 必须逐项执行)
 
@@ -37,14 +38,14 @@ tools/srt_tool.py validate <file.srt>
 
 > 说明:旧流程的"规范化"与"校对"独立阶段已并入本阶段(见 workflow.md 设计原则)——源整理发生在翻译前,去重/填空类检查由上述自检完成。
 
-## 05 阶段(Report):报告由工具生成
+## 06 阶段(Report):报告由工具生成
 
 - 运行:`tools/report.py --vid-dir VIDDIR --output VIDDIR/translation_report.md`。
 - 报告样板(任务参数/视频信息/交付物与中间产物清单/记忆摘要/运行流水/已知问题/交付清单)全部由工具从状态文件生成。
 - **AI 不得手写重复样板**;如需补充人工观察(如翻译质量抽查结论),只允许在报告末尾「agent 补充说明」小节追加。
 - 生成后核对:报告内容与 VIDDIR 实际状态一致(工具以文件系统为准,无需人工修正)。
 
-## 交付清单(05 阶段向用户交付)
+## 交付清单(06 阶段向用户交付)
 
 | 位置 | 文件 |
 |------|------|

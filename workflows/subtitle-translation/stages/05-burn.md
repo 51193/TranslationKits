@@ -1,10 +1,10 @@
-# 阶段 04 — Burn 烧录(可选)
+# 阶段 05 — Burn 烧录(可选)
 
 ## 目标
 将最终中文字幕烧录进视频,产出 `VIDDIR/video.burned.mp4`。
 
 ## 前置
-- 03 通过;`translated_subtitle.srt` 存在。
+- 04 通过;`VIDDIR/work/translated_subtitle.srt`(复核后版本)存在。
 - 入参 `burn_enabled=true`;为 false 时本阶段**直接跳过**,在 run.log 写 `status=skipped`。
 
 ## 步骤
@@ -31,7 +31,7 @@
 - `video.burned.mp4`(已存在则自动跳过;字幕源为 VIDDIR/work/translated_subtitle.srt)
 
 ## 质量门槛
-见 quality.md 阶段 04。
+见 quality.md 阶段 05。
 
 ## 失败处置表
 

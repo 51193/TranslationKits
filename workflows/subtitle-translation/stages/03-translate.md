@@ -46,7 +46,7 @@ tools/srt_tool.py from-txt --source VIDDIR/work/subtitle.srt \
 4. 更新 `VIDDIR/work/session_state.json` + `VIDDIR/work/run.log`。
 
 ## 产物(全部在 VIDDIR/work/ 内)
-- `translated_title.txt`、`translated_lines.txt`、`translated_subtitle.srt`(最终交付字幕)
+- `translated_title.txt`、`translated_lines.txt`、`translated_subtitle.srt`(04 复核修正后为最终交付字幕)
 - `source_merge.log`(源整理合并记录)、`selfcheck.log`(自检记录)
 - 四个记忆文件(如内容有更新)
 

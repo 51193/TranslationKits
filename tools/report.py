@@ -99,7 +99,7 @@ def gen_report(vid_dir):
     a("")
     work_files = [
         "subtitle.srt", "source_merge.log", "translated_title.txt", "translated_lines.txt",
-        "translated_subtitle.srt", "selfcheck.log",
+        "translated_subtitle.srt", "selfcheck.log", "review.log",
         "term_consistency_table.txt", "meta_translation_rules.txt", "synopsis_memory.txt", "ad_memory.txt",
         "audio.wav", "preflight.log", "session_state.json", "run.log", "issues.log",
     ]
@@ -121,6 +121,7 @@ def gen_report(vid_dir):
         ("preflight.log", "环境预检 (preflight.log)"),
         ("source_merge.log", "源整理合并记录 (source_merge.log)"),
         ("selfcheck.log", "翻译自检记录 (selfcheck.log)"),
+        ("review.log", "复核记录 (review.log)"),
     ]:
         txt = read_text(os.path.join(work, f))
         a(f"### {label}")
