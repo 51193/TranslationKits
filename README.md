@@ -48,7 +48,7 @@ agent 会:确认入参 → 环境预检 → 抓取 → 转写 → 翻译(含源�
 │   ├── check_env.sh              # 环境预检(二进制/venv/GPU/磁盘/URL 连通)
 │   ├── fetch.sh                  # yt-dlp 抓取元数据+视频+封面
 │   ├── transcribe.py             # whisper 音频 → 句级 SRT(GPU 自动探测)
-│   ├── srt_tool.py               # SRT 校验 / 转文本 / 重建 / 统计
+│   ├── srt_tool.py               # SRT 校验 / 转文本 / 重建 / 合并 / 拆块 / 拼块 / 统计
 │   ├── burn.sh                   # ffmpeg 字幕烧录(GPU vaapi / CPU)
 │   ├── report.py                 # 自动生成交付报告(样板内容)
 │   └── setup_venv.sh             # 创建 .venv 并安装依赖

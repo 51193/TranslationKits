@@ -19,9 +19,10 @@
    - 空文本条目、相邻语义重复条目(去重取前 start 后 end)。
 3. 禁止:为风格/措辞润色、重排句子结构(除非明显错误)、改动时间轴(合并去重除外)、新增原文没有的信息。
 4. 每次修正:**先在 `VIDDIR/work/review.log` 追加一行**记录(`[UTC时间] 修正: 条目N 原文=>译文 原因`),再编辑字幕文件。
-5. 修正完成后:
+5. **修正方式**:文本级修正(改译文内容)直接**用 Edit 工具编辑 `translated_subtitle.srt`**,禁止写脚本;涉及相邻条目合并(去重)时用 `tools/srt_tool.py merge`(注意:merge 会重排序号,需在日志中注明)。
+6. 修正完成后:
    - `tools/srt_tool.py validate VIDDIR/work/translated_subtitle.srt`(必须 exit 0,空文本 WARN 清零);
-   - 若条数或文本有变化,同步 `translated_lines.txt`:`tools/srt_tool.py to-txt VIDDIR/work/translated_subtitle.srt VIDDIR/work/translated_lines.txt`。
+   - 若文本有变化,同步 `translated_lines.txt`:`tools/srt_tool.py to-txt VIDDIR/work/translated_subtitle.srt VIDDIR/work/translated_lines.txt`。
 
 ### B. 整体复核
 逐项检查并在 `VIDDIR/work/review.log` 记录结论:
@@ -50,5 +51,5 @@
 | 全文校对发现大量错译(>5% 条目) | 停止盲目逐条修补;记录 issues.log,告知用户:可能翻译策略/模型/提示词有问题,建议重跑 03(可缩小块大小或换模型,需用户同意),而非在校对中打补丁 |
 | 发现漏译整段(块级遗漏) | 回 03 补译该块(按 03 失败处置表);补译后重新进入本阶段全文校对 |
 | 记忆文件发现广告残留 | 按 memory.md 清理记忆文件;检查对应字幕是否受影响,一并修正 |
-| validate 失败(修正引入结构错误) | 修复结构错误;无法修复 → 从修正前状态恢复(03 的 from-txt 可重建,条数不变时文本修正不改变结构) |
+| validate 失败(修正引入结构错误) | 修复结构错误;无法修复 → 从修正前状态恢复(03 的 compose 可重建,条数不变时文本修正不改变结构) |
 | 用户对复核结论有异议 | 记录 issues.log;按用户要求调整(如局部重译)后重跑本阶段 |

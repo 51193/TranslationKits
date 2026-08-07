@@ -29,7 +29,7 @@
 | 00 | Preflight 预检 | agent | `tools/check_env.sh` | 续跑时检查 `VIDDIR/work/session_state.json` | 环境检查通过(exit 0 或 2 且无 FAIL) |
 | 01 | Fetch 抓取 | 工具 | `tools/fetch.sh` | 根:`info.txt` `video.*` `thumbnail.png`;work/:`session_state.json` `run.log` `issues.log` | 文件存在且 info.txt 完整 |
 | 02 | Transcribe 转写 | 工具 | `ffmpeg` + `tools/transcribe.py` | work/:`audio.wav` `subtitle.srt` | `srt_tool.py validate` 无错误 |
-| 03 | Translate 翻译 | agent | `tools/srt_tool.py` | work/:`translated_subtitle.srt` 及记忆文件 | from-txt 行数匹配 + validate 无错误 + 自检通过 |
+| 03 | Translate 翻译 | agent | `tools/srt_tool.py` | work/:`translated_subtitle.srt`、`blocks/` 及记忆文件 | compose 行数匹配 + validate 无错误 + 自检通过 |
 | 04 | Review 复核 | agent | `tools/srt_tool.py` | work/:`review.log`(全文校对+整体复核) | 校对完成、validate 无错误、复核结论通过 |
 | 05 | Burn 烧录 | 工具 | `tools/burn.sh` | 根:`video.burned.mp4`(仅 burn_enabled=true) | 产物存在;跳过时在 run.log 注明 |
 | 06 | Report 交付 | 工具 | `tools/report.py` | 根:`translation_report.md` | 报告生成且产物清单交给用户 |
@@ -70,8 +70,9 @@
         ├── subtitle.srt              # whisper 转写字幕(03 源整理时直接编辑本文件)
         ├── source_merge.log          # 03:源整理合并记录(每条一行:原句号范围 => 合并后文本)
         ├── translated_title.txt      # 标题译文
-        ├── translated_lines.txt      # 中文译文逐行(from-txt 输入;行数守恒防线,保留)
-        ├── translated_subtitle.srt   # 中文字幕(from-txt 生成;04 复核修正后为最终交付字幕)
+        ├── translated_lines.txt      # 中文译文逐行(由 compose 生成;行数守恒防线,保留)
+        ├── translated_subtitle.srt   # 中文字幕(compose 生成;04 复核修正后为最终交付字幕)
+        ├── blocks/                   # 03 分块产物:block_000N.srt(源块)、translated_000N.txt(块译文)、manifest.txt(分块方案)
         ├── selfcheck.log             # 03:翻译自检记录(自检清单 8 项逐项结果)
         ├── review.log                # 04:复核记录(全文校对修正 + 整体复核结论)
         ├── term_consistency_table.txt    # 术语一致性表(记忆)
@@ -117,6 +118,10 @@
 
 - 广告内容(口播推广、优惠码、导流链接、三连号召)必须照常翻译,但**不得**写入术语表/元规则/前情提要(见 memory.md 与 prompts/ad-policy.md)。
 - 每个 SRT 产物生成后必须立即 `tools/srt_tool.py validate` 验证结构(02 的 `work/subtitle.srt`、03 的 `work/translated_subtitle.srt`)。
-- 报告与一切可自动化的样板内容(报告、产物清单)由 `tools/` 生成,**AI 不得手写重复样板**;人工观察可追加在报告末尾(见 05 阶段)。
+- **禁止自造环节脚本**:合并、拆块、拼块、格式转换、结构检查一律用 `tools/srt_tool.py` 既有子命令;任何"发现工具缺能力"的情况 → 走问题协议反馈建议,不得为流程环节编写一次性脚本(冒烟教训:自造 merge 脚本导致序号位移等连环错误)。文本级小修正(如 03 拼接处标点、04 复核修正译文)直接用 Edit 工具编辑文件,不写脚本。
+- **禁止内联 python 替代工具**:行数守恒(compose/from-txt 自带校验)、结构/空文本检查(validate 覆盖)不得用内联 python 重写;残留英文等语义检查靠通读完成。
+- **Python 执行约定**:需要运行 python 时一律用 `tools/` 脚本(自带 .venv 引导)或 `TranslationKits/.venv/bin/python3`,禁止 sys.path 硬编码 hack。
+- **临时文件约定**:任何临时脚本/中间文件一律放 `/tmp/opencode/<视频名>/`,阶段结束立即清理,禁止残留在项目文件夹或工作区。
+- 报告与一切可自动化的样板内容(报告、产物清单)由 `tools/` 生成,**AI 不得手写重复样板**;人工观察可追加在报告末尾(见 06 阶段)。
 - 大文件下载、装依赖、换模型等动作前先征求用户同意。
 - GPU 设备由 transcribe.py 自动探测选择(见 02 阶段);如转写明显过慢或报 HIP 错误,按 02 失败处置表处理。

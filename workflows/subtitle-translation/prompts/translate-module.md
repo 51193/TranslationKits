@@ -45,10 +45,13 @@
 - 同一块失败 3 次:记录 issues.log 并告知用户(可能提示词/记忆文件有缺陷),不得无限重试。
 
 ## 块间衔接(agent 职责)
-- 每块翻译完 → 按 memory.md 更新四个记忆文件 → 译文逐行写入 `VIDDIR/work/translated_lines.txt`。
-- 译文写入方式:**每次用 Write 工具整文件重写**(覆盖追加,保持与源字幕行号对应),或块完成后与已写部分合并重写。完成后运行:
+- 块由 `srt_tool.py split` 生成(`VIDDIR/work/blocks/block_000N.srt`),块大小由 agent 在 split 时决定。
+- 每块翻译完:译文逐行写入 `VIDDIR/work/blocks/translated_000N.txt`(每行一句,条数与块内一致)→ 按 memory.md 更新四个记忆文件。
+- 全部块完成后,由 `srt_tool.py compose` 拼接生成最终字幕与译文文本(行数/缺块校验由工具强制):
   ```bash
-  tools/srt_tool.py from-txt --source VIDDIR/work/subtitle.srt --text VIDDIR/work/translated_lines.txt --output VIDDIR/work/translated_subtitle.srt
+  tools/srt_tool.py compose --source VIDDIR/work/subtitle.srt \
+    --blocks-dir VIDDIR/work/blocks \
+    --output VIDDIR/work/translated_subtitle.srt \
+    --lines VIDDIR/work/translated_lines.txt
   ```
-  from-txt 的行数校验失败 = 本块翻译不守恒,必须修正。
 - 全部块完成后,执行 quality.md「翻译自检清单」8 项(含空文本清零与重复自检,旧"校对"职责)。
